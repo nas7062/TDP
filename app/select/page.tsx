@@ -32,13 +32,9 @@ export default function SelectPage() {
       <div className="w-full">
         <h2 className="text-center font-semibold text-2xl">학습 기계 장비를 선택해주세요.</h2>
       </div>
-
-      {/* Tab 컴포넌트에 상태와 상태 변경 함수 전달 */}
       <div>
         <Tab selectedTab={selectedTab} setSelectedTab={setSelectedTab} />
       </div>
-
-      {/* 탭에 맞는 아이템 리스트 표시 */}
       <div className="grid grid-cols-4 justify-center gap-4 mt-6 max-w-7xl w-full mx-auto">
         {machineList[selectedTab].map((item, index) => (
           <div key={index} >
