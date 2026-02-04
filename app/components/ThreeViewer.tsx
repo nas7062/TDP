@@ -7,9 +7,10 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 
 export default function ThreeViewer() {
   const mountRef = useRef<HTMLDivElement>(null);
-
   const droneRef = useRef<THREE.Object3D | null>(null);
   const originalPositions = useRef<Map<string, THREE.Vector3>>(new Map());
+  const selectedMeshRef = useRef<THREE.Mesh | null>(null);
+  const originalColors = useRef<Map<string, THREE.Color>>(new Map());  // 원래 색상을 저장할 Ref
 
   useEffect(() => {
     if (!mountRef.current) return;
@@ -53,20 +54,52 @@ export default function ThreeViewer() {
     controls.zoomSpeed = 1.0;
     controls.minDistance = 2; // 너무 가까이 못 가게
     controls.maxDistance = 12; // 너무 멀리 못 가게
+
     /* glb 로드 영역 */
     const loader = new GLTFLoader();
 
-    loader.load("/models/Drone.glb", (gltf) => {
+    loader.load("/models/Engine2.glb", (gltf) => {
       const drone = gltf.scene;
       drone.scale.setScalar(5);
 
       scene.add(drone);
       droneRef.current = drone;
 
-      //  원래 위치 저장하는 로직
+      //  원래 위치 저장 + name 부여
+      let idx = 0;
       drone.traverse((obj) => {
-        if (obj.isMesh) {
-          originalPositions.current.set(obj.uuid, obj.position.clone());
+        if ((obj as any).isMesh) {
+          const mesh = obj as THREE.Mesh;
+          mesh.name = `Wing-${idx}`; // 예: Wing-0, Wing-1, ...
+          idx += 1;
+
+          // 각 mesh의 material을 클론하여 독립적으로 만들어줌
+          if (Array.isArray(mesh.material)) {
+            mesh.material = mesh.material.map((m) => m.clone());
+          } else {
+            mesh.material = mesh.material.clone();
+          }
+
+          // 원래 색상을 저장
+          if (Array.isArray(mesh.material)) {
+            // 배열일 경우 각 material의 color 저장
+            mesh.material.forEach((m) => {
+              if (m instanceof THREE.MeshBasicMaterial || m instanceof THREE.MeshStandardMaterial) {
+                originalColors.current.set(mesh.uuid, m.color.clone());
+              }
+            });
+          } else {
+            // 단일 material일 경우 color 저장
+            if (mesh.material instanceof THREE.MeshBasicMaterial || mesh.material instanceof THREE.MeshStandardMaterial) {
+              originalColors.current.set(mesh.uuid, mesh.material.color.clone());
+            }
+          }
+
+          originalPositions.current.set(mesh.uuid, mesh.position.clone());
+
+          // 클릭 가능하게 만들기 위해 material 속성 설정
+          (mesh.material as any).opacity = 1;
+          (mesh.material as any).transparent = false;
         }
       });
 
@@ -74,6 +107,87 @@ export default function ThreeViewer() {
       controls.update();
     });
 
+    /* Raycaster 및 마우스 이벤트 추가 */
+    const raycaster = new THREE.Raycaster();
+    const pointer = new THREE.Vector2();
+
+    let selectedObject: THREE.Mesh | null = null; // 현재 선택된 메쉬 저장
+
+    function onPointerDown(event: PointerEvent) {
+      const rect = renderer.domElement.getBoundingClientRect();
+      pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+      pointer.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+      raycaster.setFromCamera(pointer, camera);
+      const intersects = raycaster.intersectObjects(scene.children, true);
+
+      if (intersects.length > 0) {
+        const hit = intersects[0];
+        const obj = hit.object as THREE.Mesh;
+
+        console.log("clicked uuid:", obj.uuid, "name:", obj.name);
+
+        // 선택된 메쉬 ref 에도 저장
+        selectedMeshRef.current = obj;
+
+        // 이미 선택된 mesh가 있을 경우 그 색을 원래 색으로 복원
+        if (selectedObject && selectedObject !== obj) {
+          // 이전 선택된 객체 색상 복원
+          const originalColor = originalColors.current.get(selectedObject.uuid);
+          if (originalColor) {
+            // 배열일 경우 모든 material에 대해 색상 복원
+            if (Array.isArray(selectedObject.material)) {
+              selectedObject.material.forEach((m) => {
+                if (m instanceof THREE.MeshBasicMaterial || m instanceof THREE.MeshStandardMaterial) {
+                  m.color.copy(originalColor); // 배열에 대해 색상 복원
+                }
+              });
+            } else {
+              if (selectedObject.material instanceof THREE.MeshBasicMaterial || selectedObject.material instanceof THREE.MeshStandardMaterial) {
+                selectedObject.material.color.copy(originalColor); // 단일 material에 대해 색상 복원
+              }
+            }
+          }
+        }
+
+        selectedObject = obj;
+        // 선택된 객체 색상 변경
+        if (Array.isArray(selectedObject.material)) {
+          selectedObject.material.forEach((m) => {
+            if (m instanceof THREE.MeshBasicMaterial || m instanceof THREE.MeshStandardMaterial) {
+              m.color.set(0xff0000); // 빨간색으로 변경
+            }
+          });
+        } else {
+          if (selectedObject.material instanceof THREE.MeshBasicMaterial || selectedObject.material instanceof THREE.MeshStandardMaterial) {
+            selectedObject.material.color.set(0xff0000); // 빨간색으로 변경
+          }
+        }
+      } else {
+        if (selectedObject) {
+          // 클릭하지 않으면 원래 색으로 복원
+          const originalColor = originalColors.current.get(selectedObject.uuid);
+          if (originalColor) {
+            // 배열일 경우 모든 material에 대해 색상 복원
+            if (Array.isArray(selectedObject.material)) {
+              selectedObject.material.forEach((m) => {
+                if (m instanceof THREE.MeshBasicMaterial || m instanceof THREE.MeshStandardMaterial) {
+                  m.color.copy(originalColor); // 배열에 대해 색상 복원
+                }
+              });
+            } else {
+              if (selectedObject.material instanceof THREE.MeshBasicMaterial || selectedObject.material instanceof THREE.MeshStandardMaterial) {
+                selectedObject.material.color.copy(originalColor); // 단일 material에 대해 색상 복원
+              }
+            }
+          }
+          selectedObject = null;
+        }
+        selectedMeshRef.current = null;
+      }
+    }
+
+    window.addEventListener('pointerdown', onPointerDown);
     const animate = () => {
       requestAnimationFrame(animate);
       controls.update();
@@ -96,12 +210,13 @@ export default function ThreeViewer() {
 
     return () => {
       window.removeEventListener("resize", handleResize);
+      window.removeEventListener("pointerdown", onPointerDown);
       mountRef.current?.removeChild(renderer.domElement);
       renderer.dispose();
     };
   }, []);
 
-  /* 분해  */
+  /* 분해 */
   const applyExplode = (value: number) => {
     const drone = droneRef.current;
     if (!drone) return;
@@ -120,13 +235,6 @@ export default function ThreeViewer() {
       }
       // 중심을 기반으로 하여 분해
       obj.position.copy(origin.clone().add(dir.multiplyScalar(value * 0.3)));
-
-      // y 축으로 분해
-      // obj.position.copy(
-      //   origin.clone().add(
-      //     new THREE.Vector3(0, value * 0.3, 0)
-      //   )
-      // );
     });
   };
 
