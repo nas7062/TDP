@@ -1,4 +1,4 @@
-import ThreeViewer from "./components/ThreeViewer";
+import ThreeViewer from "../components/ThreeViewer";
 
 export default function Home() {
   return (
