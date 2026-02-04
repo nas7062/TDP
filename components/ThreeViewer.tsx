@@ -10,7 +10,7 @@ export default function ThreeViewer() {
   const droneRef = useRef<THREE.Object3D | null>(null);
   const originalPositions = useRef<Map<string, THREE.Vector3>>(new Map());
   const selectedMeshRef = useRef<THREE.Mesh | null>(null);
-  const originalColors = useRef<Map<string, THREE.Color>>(new Map());  // 원래 색상을 저장할 Ref
+  const originalColors = useRef<Map<string, THREE.Color>>(new Map()); // 원래 색상을 저장할 Ref
 
   useEffect(() => {
     if (!mountRef.current) return;
@@ -32,12 +32,9 @@ export default function ThreeViewer() {
     /* 렌더러 */
     const renderer = new THREE.WebGLRenderer({
       antialias: true,
-      preserveDrawingBuffer: true, // 나중에 PNG 저장 가능.
+      preserveDrawingBuffer: true // 나중에 PNG 저장 가능.
     });
-    renderer.setSize(
-      mountRef.current.clientWidth,
-      mountRef.current.clientHeight
-    );
+    renderer.setSize(mountRef.current.clientWidth, mountRef.current.clientHeight);
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     mountRef.current.appendChild(renderer.domElement);
 
@@ -90,7 +87,10 @@ export default function ThreeViewer() {
             });
           } else {
             // 단일 material일 경우 color 저장
-            if (mesh.material instanceof THREE.MeshBasicMaterial || mesh.material instanceof THREE.MeshStandardMaterial) {
+            if (
+              mesh.material instanceof THREE.MeshBasicMaterial ||
+              mesh.material instanceof THREE.MeshStandardMaterial
+            ) {
               originalColors.current.set(mesh.uuid, mesh.material.color.clone());
             }
           }
@@ -138,12 +138,18 @@ export default function ThreeViewer() {
             // 배열일 경우 모든 material에 대해 색상 복원
             if (Array.isArray(selectedObject.material)) {
               selectedObject.material.forEach((m) => {
-                if (m instanceof THREE.MeshBasicMaterial || m instanceof THREE.MeshStandardMaterial) {
+                if (
+                  m instanceof THREE.MeshBasicMaterial ||
+                  m instanceof THREE.MeshStandardMaterial
+                ) {
                   m.color.copy(originalColor); // 배열에 대해 색상 복원
                 }
               });
             } else {
-              if (selectedObject.material instanceof THREE.MeshBasicMaterial || selectedObject.material instanceof THREE.MeshStandardMaterial) {
+              if (
+                selectedObject.material instanceof THREE.MeshBasicMaterial ||
+                selectedObject.material instanceof THREE.MeshStandardMaterial
+              ) {
                 selectedObject.material.color.copy(originalColor); // 단일 material에 대해 색상 복원
               }
             }
@@ -159,7 +165,10 @@ export default function ThreeViewer() {
             }
           });
         } else {
-          if (selectedObject.material instanceof THREE.MeshBasicMaterial || selectedObject.material instanceof THREE.MeshStandardMaterial) {
+          if (
+            selectedObject.material instanceof THREE.MeshBasicMaterial ||
+            selectedObject.material instanceof THREE.MeshStandardMaterial
+          ) {
             selectedObject.material.color.set(0xff0000); // 빨간색으로 변경
           }
         }
@@ -171,12 +180,18 @@ export default function ThreeViewer() {
             // 배열일 경우 모든 material에 대해 색상 복원
             if (Array.isArray(selectedObject.material)) {
               selectedObject.material.forEach((m) => {
-                if (m instanceof THREE.MeshBasicMaterial || m instanceof THREE.MeshStandardMaterial) {
+                if (
+                  m instanceof THREE.MeshBasicMaterial ||
+                  m instanceof THREE.MeshStandardMaterial
+                ) {
                   m.color.copy(originalColor); // 배열에 대해 색상 복원
                 }
               });
             } else {
-              if (selectedObject.material instanceof THREE.MeshBasicMaterial || selectedObject.material instanceof THREE.MeshStandardMaterial) {
+              if (
+                selectedObject.material instanceof THREE.MeshBasicMaterial ||
+                selectedObject.material instanceof THREE.MeshStandardMaterial
+              ) {
                 selectedObject.material.color.copy(originalColor); // 단일 material에 대해 색상 복원
               }
             }
@@ -187,7 +202,7 @@ export default function ThreeViewer() {
       }
     }
 
-    window.addEventListener('pointerdown', onPointerDown);
+    window.addEventListener("pointerdown", onPointerDown);
     const animate = () => {
       requestAnimationFrame(animate);
       controls.update();
@@ -198,13 +213,9 @@ export default function ThreeViewer() {
     /* ReSize */
     const handleResize = () => {
       if (!mountRef.current) return;
-      camera.aspect =
-        mountRef.current.clientWidth / mountRef.current.clientHeight;
+      camera.aspect = mountRef.current.clientWidth / mountRef.current.clientHeight;
       camera.updateProjectionMatrix();
-      renderer.setSize(
-        mountRef.current.clientWidth,
-        mountRef.current.clientHeight
-      );
+      renderer.setSize(mountRef.current.clientWidth, mountRef.current.clientHeight);
     };
     window.addEventListener("resize", handleResize);
 
@@ -255,7 +266,7 @@ export default function ThreeViewer() {
           bottom: 20,
           left: "50%",
           transform: "translateX(-50%)",
-          width: "300px",
+          width: "300px"
         }}
       />
     </div>

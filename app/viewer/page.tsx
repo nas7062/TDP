@@ -6,7 +6,6 @@ export default function ViewerPage() {
       <div className="flex-1">
         <ThreeViewer />
       </div>
-
     </div>
-  )
+  );
 }
