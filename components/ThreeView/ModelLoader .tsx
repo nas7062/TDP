@@ -11,6 +11,7 @@ type Props = {
   setSelectedUuid: (uuid: string | null) => void;
   originalColors: React.MutableRefObject<Map<string, THREE.Color>>;
   originalPositions: React.MutableRefObject<Map<string, THREE.Vector3>>;
+  resetKey: number;
 };
 
 function hasColor(
@@ -26,6 +27,7 @@ export function Model({
   setSelectedUuid,
   originalColors,
   originalPositions,
+  resetKey
 }: Props) {
   const gltf = useGLTF(modelPath);
   const root = gltf.scene;
@@ -93,6 +95,26 @@ export function Model({
       else applyColor(mesh.material, target);
     }
   }, [explode, selectedUuid, meshes, originalPositions, originalColors]);
+
+
+  // reset
+  useEffect(() => {
+    for (const mesh of meshes) {
+      const p = originalPositions.current.get(mesh.uuid);
+      if (p) mesh.position.copy(p);
+
+      const c = originalColors.current.get(mesh.uuid);
+      if (!c) continue;
+
+      const apply = (m: THREE.Material) => {
+        const mm = m as any;
+        if (mm?.color?.isColor) mm.color.copy(c);
+      };
+
+      if (Array.isArray(mesh.material)) mesh.material.forEach(apply);
+      else apply(mesh.material);
+    }
+  }, [resetKey, meshes, originalPositions, originalColors]);
 
   return (
     <primitive
