@@ -29,7 +29,7 @@ export default function ViewerPage() {
   console.log(selectedMesh);
   return (
     <div className="flex w-screen h-screen px-2">
-      <div className="absolute top-20 left-0 w-96 z-1">
+      <div className="absolute top-20 left-4 w-96 z-1">
         <div className="w-96 h-20 shadow-lg flex justify-between items-center px-7 bg-white rounded-lg">
           <p className="font-medium">{name}</p>
           <Image className="cursor-pointer" onClick={hnadleMenuClose} src={`/icons/${isMenu ? 'Up' : 'Down'}.svg`} alt="아이콘" width={20} height={20} />
