@@ -47,7 +47,7 @@ export default function RightPannel() {
             onClick={onClickExpandBtn}
             className={`${uiType === "default" ? "rotate-180" : "rotate-0"} transition-all duration-300 h-[fit-content] `}
           >
-            <Image src={"/icons/up.svg"} alt="새로운 글 작성" width={24} height={24} />
+            <Image src={"/icons/Up.svg"} alt="새로운 글 작성" width={24} height={24} />
           </button>
         </div>
         {/* 메인 컨텐츠 영역 */}

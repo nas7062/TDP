@@ -93,7 +93,7 @@ export default function AIAssistantContent({ uiType, setUiType }: Props) {
           aria-label="전송"
           className="flex-shrink-0 w-10 h-10 rounded-lg bg-blue-500 flex items-center justify-center hover:bg-blue-600 transition-colors"
         >
-          <Image src="/icons/chatSend.svg" alt="" width={40} height={40} />
+          <Image src="/icons/ChatSend.svg" alt="" width={40} height={40} />
         </button>
       </div>
     </div>
