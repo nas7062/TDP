@@ -13,6 +13,12 @@ type Props = {
   originalPositions: React.MutableRefObject<Map<string, THREE.Vector3>>;
 };
 
+function hasColor(
+  material: THREE.Material
+): material is THREE.MeshStandardMaterial | THREE.MeshBasicMaterial | THREE.MeshPhongMaterial {
+  return "color" in material;
+}
+
 export function Model({
   modelPath,
   explode,
@@ -24,16 +30,16 @@ export function Model({
   const gltf = useGLTF(modelPath);
   const root = gltf.scene;
 
-  // 메쉬 목록 캐시 (explode 적용용)
+  // 메쉬 목록 캐시 
   const meshes = useMemo(() => {
     const list: THREE.Mesh[] = [];
     root.traverse((o) => {
-      if ((o as any).isMesh) list.push(o as THREE.Mesh);
+      if (o instanceof THREE.Mesh) list.push(o);
     });
     return list;
   }, [root]);
 
-  // 최초 1회: material clone + 원래 색/위치 저장
+  //  material clone + 원래 색/위치 저장
   const inited = useRef(false);
   useEffect(() => {
     if (inited.current) return;
@@ -49,9 +55,8 @@ export function Model({
 
       // 원래 색상 저장 (MeshStandard/Basic만 대상으로)
       const saveColor = (m: THREE.Material) => {
-        const mm = m as any;
-        if (mm?.color?.isColor) {
-          originalColors.current.set(mesh.uuid, mm.color.clone());
+        if (hasColor(m)) {
+          originalColors.current.set(mesh.uuid, m.color.clone());
         }
       };
 
@@ -66,7 +71,7 @@ export function Model({
   // explode 적용 + 선택 하이라이트/복원
   useEffect(() => {
     for (const mesh of meshes) {
-      // 1) explode: 원래 위치 기준으로 이동
+      //  원래 위치 기준으로 이동
       const base = originalPositions.current.get(mesh.uuid);
       if (base) {
         const dir = base.clone().normalize();
@@ -74,10 +79,9 @@ export function Model({
         mesh.position.copy(base.clone().add(dir.multiplyScalar(explode * 0.3)));
       }
 
-      // 2) 색상: 선택된 메쉬만 빨간색, 나머지는 원래 색
+      // 선택된 메쉬만 빨간색, 나머지는 원래 색
       const applyColor = (m: THREE.Material, color: THREE.Color) => {
-        const mm = m as any;
-        if (mm?.color?.isColor) mm.color.copy(color);
+        if (hasColor(m)) m.color.copy(color);
       };
 
       const orig = originalColors.current.get(mesh.uuid);
@@ -94,9 +98,8 @@ export function Model({
     <primitive
       object={root}
       scale={[5, 5, 5]}
-      // R3F가 raycast + 이벤트를 다 해줍니다.
       onPointerDown={(e) => {
-        e.stopPropagation(); // 뒤로 이벤트 전파 막기 (중요)
+        e.stopPropagation();
         const mesh = e.object as THREE.Mesh;
         setSelectedUuid(mesh.uuid);
       }}
