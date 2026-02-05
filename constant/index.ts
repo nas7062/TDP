@@ -23,15 +23,6 @@ export const ActionButtons = [
     icon: '/icons/See.svg', label: '보기'
   },
   {
-    icon: '/icons/Rotate.svg', label: '회전'
-  },
-  {
-    icon: '/icons/Move.svg', label: '초점 이동'
-  },
-  {
-    icon: '/icons/Zoom.svg', label: '확대/축소'
-  },
-  {
     icon: '/icons/Section.svg', label: '단면'
   },
   {
