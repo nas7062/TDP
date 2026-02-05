@@ -1,4 +1,3 @@
-import { TabType } from "@/types";
 import { Dispatch, SetStateAction } from "react";
 
 type Props = {
