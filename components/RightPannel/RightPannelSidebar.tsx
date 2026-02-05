@@ -1,6 +1,5 @@
 import Image from "next/image";
 import { Dispatch, SetStateAction, useState } from "react";
-import SearchIcon from "../../public/icons/Search.svg";
 
 type Props = {
   uiType: RightPannelUIType;
@@ -78,7 +77,7 @@ export default function RightPannelSidebar({ setUiType, uiType, contentType }: P
         </button>
       ) : (
         <div className="relative flex items-center bg-gray-200 rounded-lg px-3 py-2 w-[160px] mr-4">
-          <SearchIcon className=" text-gray-500 mr-2" onClick={onClickSearchBtn} />
+          <img src={"/icons/Search.svg"} className=" text-gray-500 mr-2" onClick={onClickSearchBtn} />
           <input
             id="searchInput"
             type="text"
@@ -93,15 +92,15 @@ export default function RightPannelSidebar({ setUiType, uiType, contentType }: P
         <ul className="overflow-y-auto max-h-[calc(100vh-200px)] px-2">
           {sideContent === "history"
             ? historyList?.map((item) => (
-                <li key={item.id}>
-                  <p className="max-w-[155px] truncate mb-1">{item.name}</p>
-                </li>
-              ))
+              <li key={item.id}>
+                <p className="max-w-[155px] truncate mb-1">{item.name}</p>
+              </li>
+            ))
             : searchList?.map((item) => (
-                <li key={item.id}>
-                  <p className="max-w-[155px] truncate mb-1">{item.name}</p>
-                </li>
-              ))}
+              <li key={item.id}>
+                <p className="max-w-[155px] truncate mb-1">{item.name}</p>
+              </li>
+            ))}
         </ul>
       )}
     </div>
