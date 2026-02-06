@@ -1,31 +1,67 @@
 "use client";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import RightPannelSidebar from "./RightPannelSidebar";
 import AIAssistantContent from "./AIAssistantContent";
 import MemoContent from "./MemoContent";
+import { getChatList } from "@/lib/api/aiAssistant";
+import { useSearchParams } from "next/navigation";
 
 const contentList: RightPannelContentType[] = ["AI 어시스턴스", "메모장"];
 
 export default function RightPannel() {
+  const userIdx = typeof window !== "undefined" ? localStorage.getItem("userIdx") : "";
+  const searchParams = useSearchParams();
+  const modelIdx = searchParams.get("modelIdx") ? parseInt(searchParams.get("modelIdx")!) : 0;
+
   const [uiType, setUiType] = useState<RightPannelUIType>("default");
   const [contentType, setContentType] = useState<RightPannelContentType>("AI 어시스턴스");
-
   const onClickExpandBtn = () => {
     setUiType(uiType === "default" ? "expanded" : "default");
   };
+
+  const [chatList, setChatList] = useState<ChatContent[]>([]);
+  const [roomId, setRoomId] = useState<string>("");
+  const selectedChat = useMemo(
+    () => chatList.find((chat) => chat.roomId === roomId),
+    [chatList, roomId]
+  );
+
+  useEffect(() => {
+    let cancelled = false;
+    async function fetchChatList() {
+      try {
+        if (isNaN(Number(userIdx))) return;
+        const res = await getChatList({ userIdx: Number(userIdx), modelIdx });
+        if (!cancelled && res?.contents) setChatList(res.contents);
+      } catch {
+        // 채팅 목록 조회 실패 시 무시
+      }
+    }
+    fetchChatList();
+    return () => {
+      cancelled = true;
+    };
+  }, [modelIdx]);
 
   return (
     <div
       className={`fixed right-3 top-[84px] p-7 pl-4 bg-white rounded-lg shadow-lg flex transition-all duration-300 ${uiType === "default" ? "h-[176px]" : "h-[812px]"} max-h-[calc(100vh-120px)] ${uiType === "full" ? "w-[529px]" : "w-[392px]"}`}
     >
       {/* 왼쪽 사이드 영역 */}
-      <RightPannelSidebar uiType={uiType} setUiType={setUiType} contentType={contentType} />
+      <RightPannelSidebar
+        uiType={uiType}
+        setUiType={setUiType}
+        contentType={contentType}
+        chatList={chatList}
+        setRoomId={setRoomId}
+        roomId={roomId}
+      />
 
       {/* 오른쪽 메인 영역 */}
-      <div className="ml-4 w-full flex flex-col min-h-0 flex-1">
+      <div className="ml-4 w-full flex flex-col justify-between min-h-0 flex-1">
         {/* 상단 영역 */}
-        <div className="grid grid-cols-[1fr_24px]  h-8 items-center justify-between w-full">
+        <div className="grid grid-cols-[1fr_24px]  h-8 items-center justify-between w-full mb-2">
           <ul
             role="tablist"
             className="grid grid-cols-2 items-center justify-center font-medium  text-[15px] "
@@ -53,7 +89,14 @@ export default function RightPannel() {
         {/* 메인 컨텐츠 영역 */}
 
         {contentType === "AI 어시스턴스" && (
-          <AIAssistantContent uiType={uiType} setUiType={setUiType} />
+          <AIAssistantContent
+            uiType={uiType}
+            setUiType={setUiType}
+            roomId={roomId}
+            setRoomId={setRoomId}
+            selectedChat={selectedChat}
+            setChatList={setChatList}
+          />
         )}
         {contentType === "메모장" && <MemoContent uiType={uiType} setUiType={setUiType} />}
       </div>

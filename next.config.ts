@@ -1,6 +1,15 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  async rewrites() {
+    return [
+      {
+        source: "/proxy/:path*",
+        destination: `${process.env.NEXT_PUBLIC_API_BASE_URL}/:path*`
+      }
+    ];
+  },
+
   // Next.js 16: use "turbopack" (not "turbo")
   turbopack: {
     rules: {
