@@ -22,9 +22,10 @@ export default function ProfilePage() {
       return;
     } catch (error) {
       const code = (error as any)?.code;
+      const status = (error as any)?.status;
       try {
         // 실패 시 유저 생성 
-        if (code === "CEC0005") {
+        if (code === "CEC0007" || status === 400) {
           await createUser(userId);
           localStorage.setItem("userId", userId);
           router.replace("/select");

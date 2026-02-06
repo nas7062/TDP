@@ -89,3 +89,11 @@ export const PartListMock: IPart[] = [
     descript: `압축기로부터 들어온 고압의 공기에 연료를 분사하여 폭발시키고, 그 팽창 에너지를 터빈으로 전달하는 기계의 '심장'부입니다.`
   }
 ];
+
+
+export const AXIS_OPTIONS: { label: string; value: AxisType }[] = [
+  { label: "중앙", value: "Center" },
+  { label: "X축", value: "X" },
+  { label: "Y축", value: "Y" },
+  { label: "Z축", value: "Z" },
+];

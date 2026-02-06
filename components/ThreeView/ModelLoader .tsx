@@ -12,6 +12,8 @@ type Props = {
   originalColors: React.MutableRefObject<Map<string, THREE.Color>>;
   originalPositions: React.MutableRefObject<Map<string, THREE.Vector3>>;
   resetKey: number;
+  level: number;
+  axis: AxisType;
 };
 
 function hasColor(
@@ -27,11 +29,13 @@ export function Model({
   setSelectedUuid,
   originalColors,
   originalPositions,
-  resetKey
+  resetKey,
+  level,
+  axis
 }: Props) {
   const gltf = useGLTF(modelPath);
   const root = gltf.scene;
-
+  console.log(explode, level, axis)
   // 메쉬 목록 캐시 
   const meshes = useMemo(() => {
     const list: THREE.Mesh[] = [];
@@ -77,8 +81,30 @@ export function Model({
       const base = originalPositions.current.get(mesh.uuid);
       if (base) {
         const dir = base.clone().normalize();
+        const dist = explode * 0.1 * level;
         if (dir.lengthSq() === 0) dir.set(0, 1, 0);
-        mesh.position.copy(base.clone().add(dir.multiplyScalar(explode * 0.3)));
+        switch (axis) {
+          case 'Center': {
+            mesh.position.copy(base.clone().add(dir.multiplyScalar(dist)));
+            break;
+          }
+          case "X": {
+            dir.set(1, 0, 0);
+            mesh.position.copy(base.clone().add(dir.multiplyScalar(dist)));
+            break;
+          }
+          case "Y": {
+            dir.set(0, 1, 0);
+            mesh.position.copy(base.clone().add(dir.multiplyScalar(dist)));
+            break;
+          }
+          case "Z": {
+            dir.set(0, 0, 1);
+            mesh.position.copy(base.clone().add(dir.multiplyScalar(dist)));
+            break;
+          }
+        }
+
       }
 
       // 선택된 메쉬만 빨간색, 나머지는 원래 색

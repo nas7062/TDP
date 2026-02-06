@@ -7,18 +7,21 @@ import { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 import * as THREE from "three";
 import { Model } from "./ModelLoader ";
 import ActionButton from "../ActionButton";
+import { ExplodeModal } from "../ExplodeModal";
+import { useRouter } from "next/navigation";
 
 export default function ThreeView() {
   const [modelPath] = useState("/models/Engine2.glb");
   const [selectedUuid, setSelectedUuid] = useState<string | null>(null);
   const [explode, setExplode] = useState(0);
+  const [level, setLevel] = useState(1);
   const originalPositions = useRef<Map<string, THREE.Vector3>>(new Map());
   const originalColors = useRef<Map<string, THREE.Color>>(new Map());
   const [resetKey, setResetKey] = useState(0);
-
+  const [axis, setAxis] = useState<AxisType>("Center")
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
   const controlsRef = useRef<OrbitControlsImpl | null>(null);
-
+  const router = useRouter();
   //최초 카메라 상태 저장
   const initialCamPos = useRef<THREE.Vector3 | null>(null);
   const initialCamQuat = useRef<THREE.Quaternion | null>(null);
@@ -61,7 +64,7 @@ export default function ThreeView() {
     resetCamera();
   };
   return (
-    <div className="w-full h-full relative">
+    <div className="w-full h-full relative bg-gray-100">
       <Canvas
         camera={{ position: [2, 5, 5], fov: 35 }}
         onCreated={({ camera }) => {
@@ -84,29 +87,17 @@ export default function ThreeView() {
           setSelectedUuid={setSelectedUuid}
           originalColors={originalColors}
           originalPositions={originalPositions}
+          level={level}
           resetKey={resetKey}
+          axis={axis}
         />
       </Canvas>
 
-      <input
-        type="range"
-        min={0}
-        max={1}
-        step={0.01}
-        value={explode}
-        onChange={(e) => setExplode(Number(e.target.value))}
-        style={{
-          position: "absolute",
-          bottom: 40,
-          left: "50%",
-          transform: "translateX(-50%)",
-          width: "300px",
-        }}
-      />
+
       <div className="fixed bottom-6 left-1/2 -translate-x-1/2 flex gap-1">
-        <ActionButton icon="/icons/Home.svg" label="홈" />
+        <ActionButton icon="/icons/Home.svg" label="홈" onClick={() => router.push('/select')} />
         <ActionButton icon="/icons/See.svg" label="보기" />
-        <ActionButton icon="/icons/Explode.svg" label="분해" />
+        <ExplodeModal explode={explode} setExplode={setExplode} level={level} setLevel={setLevel} setAxis={setAxis} axis={axis} />
         <ActionButton icon="/icons/Reset.svg" label="초기화" onClick={onReset} />
       </div>
     </div>

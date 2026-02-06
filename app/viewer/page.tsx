@@ -8,28 +8,25 @@ import SelectBox from "@/components/SelectBox";
 import { PartListMock } from "@/constant";
 import DetailBox from "@/components/DetailBox";
 import RightPannel from "@/components/RightPannel/RightPannel";
+import ThreeView from "@/components/ThreeView/ThreeView";
 
 export default function ViewerPage() {
-  const [selectedMesh, setSelectedMesh] = useState(null);
   const searchParams = useSearchParams();
-  const name = searchParams.get("name");
+  const idx = searchParams.get("modelIdx");
   const [isMenu, setIsMenu] = useState(false);
   const [isDetail, setIsDetail] = useState(false);
   const [selectedPart, setSelectedPart] = useState<IPart | null>(null);
 
-  const handleMeshSelect = (meshData: any) => {
-    setSelectedMesh(meshData);
-  };
+
   const hnadleMenuClose = () => {
     setIsMenu(!isMenu);
     setIsDetail(false);
   };
-  console.log(selectedMesh);
   return (
     <div className="flex w-screen h-screen px-2">
       <div className="absolute top-20 left-4 w-96 z-1">
         <div className="w-96 h-20 shadow-lg flex justify-between items-center px-7 bg-white rounded-lg">
-          <p className="font-medium">{name}</p>
+          <p className="font-medium">{idx}</p>
           <Image
             className="cursor-pointer"
             onClick={hnadleMenuClose}
@@ -60,7 +57,7 @@ export default function ViewerPage() {
         </div>
       </div>
       <div className="flex-1 ">
-        <ThreeViewer onMeshSelect={handleMeshSelect} />
+        <ThreeView />
       </div>
       <RightPannel />
     </div>
