@@ -5,6 +5,17 @@ interface IPart {
   status: string;
   descript: string;
 }
+
+interface ICategory {
+  totalCount: number;
+  contents: [{
+    idx: number;
+    name: string;
+    image?: string;
+  }
+  ]
+};
+
 type TabType = "기계공학" | "생명공학" | "의공학";
 
 // 우측패널
