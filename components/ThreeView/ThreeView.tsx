@@ -7,6 +7,7 @@ import { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 import * as THREE from "three";
 import { Model } from "./ModelLoader ";
 import ActionButton from "../ActionButton";
+import { ExplodeModal } from "../ExplodeModal";
 
 export default function ThreeView() {
   const [modelPath] = useState("/models/Engine2.glb");
@@ -106,7 +107,7 @@ export default function ThreeView() {
       <div className="fixed bottom-6 left-1/2 -translate-x-1/2 flex gap-1">
         <ActionButton icon="/icons/Home.svg" label="홈" />
         <ActionButton icon="/icons/See.svg" label="보기" />
-        <ActionButton icon="/icons/Explode.svg" label="분해" />
+        <ExplodeModal />
         <ActionButton icon="/icons/Reset.svg" label="초기화" onClick={onReset} />
       </div>
     </div>
