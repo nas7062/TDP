@@ -4,7 +4,7 @@ import { createUser, fetchUser } from "@/lib/api/user";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-export default function ProfilePage() {
+export default function Page() {
   const [userId, setUserId] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
