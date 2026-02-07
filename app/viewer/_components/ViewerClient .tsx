@@ -29,7 +29,6 @@ export default function ViewerClient() {
   }, []);
 
   useEffect(() => {
-    console.log(modelIdx, user?.idx);
     if (!modelIdx || !user?.idx) return;
     setLoading(true);
     const fetchModel = async () => {
