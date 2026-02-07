@@ -2,16 +2,21 @@
 
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 import * as THREE from "three";
 import { Model } from "./ModelLoader ";
 import ActionButton from "../ActionButton";
 import { ExplodeModal } from "../ExplodeModal";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { fetchModelByIdx } from "@/lib/api/model";
 
 export default function ThreeView() {
   const [modelPath] = useState("/models/Engine2.glb");
+  const [model, setModel] = useState<IModelDetail | null>(null);
+  const searchParmas = useSearchParams();
+  const modelIdx = Number(searchParmas.get('modelIdx'));
+  const [loading, setLoading] = useState(false);
   const [selectedUuid, setSelectedUuid] = useState<string | null>(null);
   const [explode, setExplode] = useState(0);
   const [level, setLevel] = useState(1);
@@ -19,6 +24,8 @@ export default function ThreeView() {
   const originalColors = useRef<Map<string, THREE.Color>>(new Map());
   const [resetKey, setResetKey] = useState(0);
   const [axis, setAxis] = useState<AxisType>("Center")
+  const [user, setUser] = useState<IUser | null>(null);
+
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
   const controlsRef = useRef<OrbitControlsImpl | null>(null);
   const router = useRouter();
@@ -27,6 +34,10 @@ export default function ThreeView() {
   const initialCamQuat = useRef<THREE.Quaternion | null>(null);
   const initialTarget = useRef<THREE.Vector3 | null>(null);
 
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem("user") ?? "{}");
+    setUser(user);
+  }, []);
   const captureInitialCamera = () => {
     const cam = cameraRef.current;
     const ctrls = controlsRef.current;
@@ -63,6 +74,26 @@ export default function ThreeView() {
     setResetKey((k) => k + 1);
     resetCamera();
   };
+
+  useEffect(() => {
+    console.log(modelIdx, user?.idx);
+    if (!modelIdx || !user?.idx) return;
+    setLoading(true);
+    const fetchModel = async () => {
+      try {
+        const data = await fetchModelByIdx({ userIdx: Number(user?.idx), modelIdx })
+        setModel(data);
+        console.log(data);
+      }
+      catch (error) {
+        setModel(null);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchModel();
+  }, [modelIdx, user?.idx]);
+
   return (
     <div className="w-full h-full relative bg-gray-100">
       <Canvas

@@ -35,7 +35,6 @@ export function Model({
 }: Props) {
   const gltf = useGLTF(modelPath);
   const root = gltf.scene;
-  console.log(explode, level, axis)
   // 메쉬 목록 캐시 
   const meshes = useMemo(() => {
     const list: THREE.Mesh[] = [];

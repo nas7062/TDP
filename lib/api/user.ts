@@ -1,21 +1,18 @@
-type UserResponse = {
-  idx: number;
-  userId: string;
-};
+
 type ErrorResponse = {
   status: number;
   code: string;
   message: string;
 };
 
-export async function fetchUser(userId: string): Promise<UserResponse> {
+export async function fetchUser(userId: string): Promise<IUser> {
   const res = await fetch(`/proxy/user/${encodeURIComponent(userId)}`, {
     method: "GET",
     headers: { Accept: "application/json" }
   });
 
   const body = await res.json().catch(() => null);
-  if (res.ok) return body as UserResponse;
+  if (res.ok) return body as IUser;
 
   const err = body as ErrorResponse;
   const error = new Error(err.message || `유저 조회 실패`);
@@ -24,7 +21,7 @@ export async function fetchUser(userId: string): Promise<UserResponse> {
   throw error;
 }
 
-export async function createUser(userId: string): Promise<void> {
+export async function createUser(userId: string): Promise<IUser> {
   const res = await fetch(`/proxy/user`, {
     method: "POST",
     headers: {
@@ -33,8 +30,8 @@ export async function createUser(userId: string): Promise<void> {
     },
     body: JSON.stringify({ userId })
   });
-  if (res.ok) return;
-
   const body = await res.json().catch(() => null);
+  if (res.ok) return body as IUser;
+
   throw new Error(body?.message || `유저 생성 실패`);
 }

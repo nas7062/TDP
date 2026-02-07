@@ -6,6 +6,11 @@ interface IPart {
   descript: string;
 }
 
+interface IUser {
+  idx: number;
+  userId: string;
+};
+
 interface ICategoryItem {
   idx: number;
   name: string;
@@ -16,6 +21,25 @@ interface ICategory {
   totalCount: number;
   contents: ICategoryItem[];
 };
+
+
+interface IModelParts {
+  idx: number;
+  name: string;
+  image: string;
+  statusInfo: string;
+  description: string;
+}
+
+interface IModelDetail {
+  idx: number;
+  name: string;
+  image: string;
+  asset: string;
+  meta: string;
+  description: string;
+  items: IModelParts[]
+}
 
 
 type AxisType = 'Center' | 'X' | 'Y' | 'Z'

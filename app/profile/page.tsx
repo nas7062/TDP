@@ -16,7 +16,11 @@ export default function ProfilePage() {
     try {
       // 유저 조회
       const user = await fetchUser(userId);
-      localStorage.setItem("userId", user.userId);
+      const userInfo = {
+        userId: user.userId,
+        idx: user.idx,
+      };
+      localStorage.setItem("user", JSON.stringify(userInfo));
       router.replace("/select");
       return;
     } catch (error) {
@@ -25,8 +29,12 @@ export default function ProfilePage() {
       try {
         // 실패 시 유저 생성 
         if (code === "CEC0007" || status === 400) {
-          await createUser(userId);
-          localStorage.setItem("userId", userId);
+          const user = await createUser(userId);
+          const userInfo = {
+            userId: user.userId,
+            idx: user.idx,
+          };
+          localStorage.setItem("user", JSON.stringify(userInfo));
           router.replace("/select");
           return;
         }

@@ -6,7 +6,7 @@ import { fetchCategoryInModel } from "@/lib/api/model";
 import ModelCard from "@/components/ModelCard";
 
 interface Props {
-  category?: ICategoryItem
+  category?: ICategory
 }
 
 export default function SelectClient({ category }: Props) {
@@ -26,9 +26,7 @@ export default function SelectClient({ category }: Props) {
       catch (error) {
         setModelList([]);
       } finally {
-        (() => {
-          setLoading(false);
-        });
+        setLoading(false);
       }
     }
     fetchModel();

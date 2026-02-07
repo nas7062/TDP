@@ -3,11 +3,11 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 export default function Header() {
-  const [nickname, setNickname] = useState<string | null>(null);
+  const [user, setUser] = useState<IUser | null>(null);
 
   useEffect(() => {
-    const name = localStorage.getItem("userId");
-    setNickname(name);
+    const user = JSON.parse(localStorage.getItem("user") ?? "{}");
+    setUser(user);
   }, []);
 
   return (
@@ -15,9 +15,9 @@ export default function Header() {
       <Link href="/">
         <h1 className="text-4xl  font-semibold cursor-pointer">SIMVEX</h1>
       </Link>
-      {nickname && (
+      {user?.userId && (
         <div className="flex gap-2 justify-center items-center">
-          <p className="font-semibold">{nickname}</p>
+          <p className="font-semibold">{user.userId}</p>
           <div className="h-10 w-10 rounded-full bg-gray-200"></div>
         </div>
       )}

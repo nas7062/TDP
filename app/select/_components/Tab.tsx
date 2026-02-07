@@ -3,7 +3,7 @@ import { Dispatch, SetStateAction } from "react";
 type Props = {
   selectedTab: number;
   setSelectedTab: Dispatch<SetStateAction<number>>;
-  category: ICategory
+  category: ICategory | undefined;
 };
 
 export default function Tab({ selectedTab, setSelectedTab, category }: Props) {
@@ -11,7 +11,7 @@ export default function Tab({ selectedTab, setSelectedTab, category }: Props) {
   return (
     <div className="flex justify-center items-center">
       <div className="flex bg-white border rounded-2xl overflow-hidden">
-        {category.contents.map((cate) =>
+        {category?.contents.map((cate) =>
           <button
             key={cate.idx}
             onClick={() => setSelectedTab(cate.idx)}
