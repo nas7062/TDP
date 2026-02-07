@@ -41,6 +41,9 @@ importers:
       three:
         specifier: ^0.182.0
         version: 0.182.0
+      three-stdlib:
+        specifier: ^2.36.1
+        version: 2.36.1(three@0.182.0)
     devDependencies:
       '@svgr/webpack':
         specifier: ^8.1.0

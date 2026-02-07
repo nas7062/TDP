@@ -18,7 +18,7 @@ export default function ProfilePage() {
       const user = await fetchUser(userId);
       const userInfo = {
         userId: user.userId,
-        idx: user.idx,
+        idx: user.idx
       };
       localStorage.setItem("user", JSON.stringify(userInfo));
       router.replace("/select");
@@ -27,12 +27,12 @@ export default function ProfilePage() {
       const code = (error as any)?.code;
       const status = (error as any)?.status;
       try {
-        // 실패 시 유저 생성 
+        // 실패 시 유저 생성
         if (code === "CEC0007" || status === 400) {
           const user = await createUser(userId);
           const userInfo = {
             userId: user.userId,
-            idx: user.idx,
+            idx: user.idx
           };
           localStorage.setItem("user", JSON.stringify(userInfo));
           router.replace("/select");
