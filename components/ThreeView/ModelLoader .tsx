@@ -7,8 +7,8 @@ import { useGLTF } from "@react-three/drei";
 type Props = {
   modelPath: string;
   explode: number;
-  selectedUuid: string | null;
-  setSelectedUuid: (uuid: string | null) => void;
+  selectedName: string | null;
+  setSelectedName: (name: string | null) => void;
   originalColors: React.MutableRefObject<Map<string, THREE.Color>>;
   originalPositions: React.MutableRefObject<Map<string, THREE.Vector3>>;
   resetKey: number;
@@ -25,8 +25,8 @@ function hasColor(
 export function Model({
   modelPath,
   explode,
-  selectedUuid,
-  setSelectedUuid,
+  selectedName,
+  setSelectedName,
   originalColors,
   originalPositions,
   resetKey,
@@ -43,7 +43,6 @@ export function Model({
     });
     return list;
   }, [root]);
-
   //  material clone + 원래 색/위치 저장
   const inited = useRef(false);
   useEffect(() => {
@@ -113,12 +112,12 @@ export function Model({
       const orig = originalColors.current.get(mesh.uuid);
       if (!orig) continue;
 
-      const target = mesh.uuid === selectedUuid ? new THREE.Color(0xff0000) : orig;
+      const target = mesh.name === selectedName ? new THREE.Color(0xff0000) : orig;
 
       if (Array.isArray(mesh.material)) mesh.material.forEach((m) => applyColor(m, target));
       else applyColor(mesh.material, target);
     }
-  }, [explode, selectedUuid, meshes, originalPositions, originalColors, axis, level]);
+  }, [explode, selectedName, meshes, originalPositions, originalColors, axis, level]);
 
   // reset
   useEffect(() => {
@@ -146,7 +145,7 @@ export function Model({
       onPointerDown={(e) => {
         e.stopPropagation();
         const mesh = e.object as THREE.Mesh;
-        setSelectedUuid(mesh.uuid);
+        setSelectedName(mesh.name);
       }}
     />
   );

@@ -1,7 +1,7 @@
 "use client";
 
 import { Canvas } from "@react-three/fiber";
-import { useRef, useState } from "react";
+import { Dispatch, SetStateAction, useRef, useState } from "react";
 import { OrbitControls } from "@react-three/drei";
 import { OrbitControls as ThreeOrbitControls } from "three-stdlib";
 import * as THREE from "three";
@@ -10,9 +10,13 @@ import ActionButton from "../ActionButton";
 import { ExplodeModal } from "../ExplodeModal";
 import { useRouter } from "next/navigation";
 
-export default function ThreeView() {
-  const [modelPath] = useState("/models/Engine2.glb");
-  const [selectedUuid, setSelectedUuid] = useState<string | null>(null);
+interface Props {
+  setSelectedName: Dispatch<SetStateAction<string | null>>;
+  selectedName: string | null;
+}
+
+export default function ThreeView({ setSelectedName, selectedName }: Props) {
+  const [modelPath] = useState("/models/Drone2.glb");
   const [explode, setExplode] = useState(0);
   const [level, setLevel] = useState(1);
   const originalPositions = useRef<Map<string, THREE.Vector3>>(new Map());
@@ -60,7 +64,7 @@ export default function ThreeView() {
 
   const onReset = () => {
     setExplode(0);
-    setSelectedUuid(null);
+    setSelectedName(null);
     setResetKey((k) => k + 1);
     resetCamera();
   };
@@ -73,7 +77,7 @@ export default function ThreeView() {
           cameraRef.current = camera as THREE.PerspectiveCamera;
           captureInitialCamera();
         }}
-        onPointerMissed={() => setSelectedUuid(null)}
+        onPointerMissed={() => setSelectedName(null)}
       >
         <ambientLight intensity={0.5} />
         <directionalLight position={[5, 6, 5]} intensity={1.2} />
@@ -87,8 +91,8 @@ export default function ThreeView() {
         <Model
           modelPath={modelPath}
           explode={explode}
-          selectedUuid={selectedUuid}
-          setSelectedUuid={setSelectedUuid}
+          selectedName={selectedName}
+          setSelectedName={setSelectedName}
           originalColors={originalColors}
           originalPositions={originalPositions}
           level={level}
