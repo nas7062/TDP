@@ -36,7 +36,6 @@ export default function ViewerClient() {
       try {
         const data = await fetchModelByIdx({ userIdx: Number(user?.idx), modelIdx });
         setModel(data);
-        console.log(data);
       } catch (error) {
         setModel(null);
       } finally {

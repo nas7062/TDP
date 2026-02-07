@@ -6,7 +6,7 @@ import { fetchCategoryInModel } from "@/lib/api/model";
 import ModelCard from "@/components/ModelCard";
 
 interface Props {
-  category?: ICategory
+  category?: ICategory;
 }
 
 export default function SelectClient({ category }: Props) {
@@ -20,18 +20,17 @@ export default function SelectClient({ category }: Props) {
     setLoading(true);
     const fetchModel = async () => {
       try {
-        const data = await fetchCategoryInModel(selectedTab)
+        const data = await fetchCategoryInModel(selectedTab);
         setModelList(data.contents);
-      }
-      catch (error) {
+      } catch (error) {
         setModelList([]);
       } finally {
         setLoading(false);
       }
-    }
+    };
     fetchModel();
   }, [selectedTab]);
-  console.log(modelList);
+
   return (
     <div className="w-screen h-screen flex flex-col gap-10 mt-20 ">
       <div className="w-full">

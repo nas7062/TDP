@@ -43,7 +43,6 @@ export function Model({
     });
     return list;
   }, [root]);
-  console.log(meshes);
   //  material clone + 원래 색/위치 저장
   const inited = useRef(false);
   useEffect(() => {
