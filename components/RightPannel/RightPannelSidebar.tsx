@@ -1,7 +1,10 @@
-import { deleteMemo } from "@/lib/api/memo";
+import { searchChat } from "@/lib/api/aiAssistant";
+import { deleteMemo, searchMemo } from "@/lib/api/memo";
+import useDebounce from "@/lib/hook/useDebounce";
+import { highlightKeyword } from "@/lib/util/highlightKeyword";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 
 type Props = {
   uiType: RightPannelUIType;
@@ -16,28 +19,6 @@ type Props = {
   memoIdx?: number | null;
   setMemoIdx: Dispatch<SetStateAction<number | null>>;
 };
-
-// 일단 더미데이터
-const searchChatList: ChatContent[] = [
-  {
-    roomId: "1",
-    createDate: "2026-02-05T13:06:12.107Z",
-    messages: [
-      { type: "REQUEST", message: "지금 하이라이트된 부품이 엔진 전체에서 정확히 어떤 역할을 해?" }
-    ]
-  }
-];
-
-const searchMemoList: MemoContent[] = [
-  {
-    idx: 1,
-    memo: "2026-02-05T13:06:12.107Z"
-  },
-  {
-    idx: 2,
-    memo: "2026-02-05T13:06:12.107Z"
-  }
-];
 
 // 사이드 버튼들 /  기록, 검색
 export default function RightPannelSidebar({
@@ -57,6 +38,35 @@ export default function RightPannelSidebar({
     typeof window !== "undefined" ? JSON.parse(localStorage.getItem("user") ?? "{}")?.idx : "";
   const searchParams = useSearchParams();
   const modelIdx = searchParams.get("modelIdx") ? parseInt(searchParams.get("modelIdx")!) : 0;
+  const [inputValue, setInputValue] = useState("");
+  const debouncedInputValue = useDebounce(inputValue, 500);
+  const [searchMemoList, setSearchMemoList] = useState<MemoContent[]>([]);
+  const [searchChatList, setSearchChatList] = useState<ChatContent[]>([]);
+
+  // 검색 api 호출
+  useEffect(() => {
+    if (debouncedInputValue.trim().length > 0) {
+      const searchMemoList = async () => {
+        const res = await searchMemo({
+          userIdx: Number(userIdx),
+          modelIdx: Number(modelIdx),
+          keyword: debouncedInputValue
+        });
+        if (res?.contents) setSearchMemoList(res.contents);
+      };
+      const searchChatList = async () => {
+        const res = await searchChat({
+          userIdx: Number(userIdx),
+          modelIdx: Number(modelIdx),
+          keyword: debouncedInputValue
+        });
+        if (res?.contents) setSearchChatList(res.contents);
+      };
+
+      if (contentType === "메모장") searchMemoList();
+      if (contentType === "AI 어시스턴스") searchChatList();
+    }
+  }, [debouncedInputValue]);
 
   const onClickSideBarBtn = () => {
     setUiType(uiType === "full" ? "expanded" : "full");
@@ -86,7 +96,7 @@ export default function RightPannelSidebar({
 
   const onClickXBtn = () => {
     setSideContentType("history");
-    // 검색어 다 지우기
+    setInputValue("");
   };
 
   const onClickMemoDeleteBtn = (memoIdx: number) => {
@@ -122,6 +132,8 @@ export default function RightPannelSidebar({
         <div className="relative flex items-center justify-between bg-gray-200 rounded-lg px-3 py-2 w-[160px]">
           <input
             id="searchInput"
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
             type="text"
             placeholder="검색하세요"
             className="text-blue-400 placeholder:text-gray-400 font-[16px] bg-transparent outline-none w-[114px]"
@@ -148,7 +160,12 @@ export default function RightPannelSidebar({
                 className={`group cursor-pointer ${roomId === item.roomId ? "bg-gray-100" : ""} px-2.5 leading-[38px] mr-4 rounded-lg hover:bg-gray-50`}
               >
                 <p className={`group-hover:max-w-[120px] max-w-[155px] truncate h-[38px] `}>
-                  {item.messages?.[0]?.message}
+                  {sideContentType === "search" && debouncedInputValue.trim()
+                    ? highlightKeyword(
+                        item.messages?.[0]?.message ?? "",
+                        debouncedInputValue
+                      )
+                    : item.messages?.[0]?.message}
                 </p>
                 <button
                   role="button"
@@ -168,7 +185,12 @@ export default function RightPannelSidebar({
                 className={`group cursor-pointer ${memoIdx === item.idx ? "bg-gray-100" : ""} px-2.5 leading-[38px] mr-4 rounded-lg hover:bg-gray-50 relative`}
               >
                 <p className={`group-hover:max-w-[120px] max-w-[155px] truncate h-[38px] `}>
-                  {item.memo || "내용 없음"}
+                  {sideContentType === "search" && debouncedInputValue.trim()
+                    ? highlightKeyword(
+                        item.memo ?? "내용 없음",
+                        debouncedInputValue
+                      )
+                    : item.memo || "내용 없음"}
                 </p>
                 <button
                   role="button"

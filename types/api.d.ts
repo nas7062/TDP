@@ -64,3 +64,13 @@ type MemoDeleteRequest = {
   modelIdx: number;
   memoIdx: number;
 };
+
+type MemoSearchRequest = {
+  userIdx: number;
+  modelIdx: number;
+  keyword: string;
+};
+type MemoSearchResponse = {
+  totalCount: number;
+  contents: MemoContent[];
+};

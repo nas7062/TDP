@@ -86,3 +86,27 @@ export async function deleteMemo({ userIdx, modelIdx, memoIdx }: MemoDeleteReque
       : undefined;
   throw new Error(errMessage || "메모 생성 실패");
 }
+
+export async function searchMemo({
+  userIdx,
+  keyword,
+  modelIdx
+}: MemoSearchRequest): Promise<MemoSearchResponse> {
+  const res = await fetch(`/proxy/model/${modelIdx}/user/${userIdx}/memo/search`, {
+    method: "PUT",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ keyword })
+  });
+
+  const body = await res.json().catch(() => null);
+  if (res.ok) return body as MemoSearchResponse;
+
+  const errMessage =
+    body && typeof body === "object" && "message" in body
+      ? (body as { message: string }).message
+      : undefined;
+  throw new Error(errMessage || "메모 생성 실패");
+}
