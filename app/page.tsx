@@ -1,6 +1,7 @@
 "use client";
 
 import { createUser, fetchUser } from "@/lib/api/user";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -48,15 +49,24 @@ export default function Page() {
   };
 
   return (
-    <div className="bg-white h-screen w-screen flex flex-col justify-center gap-10">
-      <div className="flex flex-col justify-around w-[467px] h-[292px] mx-auto">
+    <div className="bg-[url('/images/Background.png')] bg-cover bg-center h-screen w-screen flex flex-col justify-center gap-4 mt-[-64px]">
+      <div className="flex flex-col justify-around w-[467px] h-[292px] mx-auto mt-[60px]">
         <div className="flex flex-col gap-2 text-center">
-          <h1 className="text-6xl font-bold text-black">SIMVEX</h1>
-          <h2 className="text-xl font-semibold text-black">공학 학습의 새로운 기준</h2>
+          <h1 className="text-6xl font-bold text-black">
+            <Image
+              src="/images/logo.png"
+              alt="SIMVEX"
+              width={230}
+              height={86}
+              className="inline-block"
+            />
+          </h1>
+          <h2 className="text-2xl mt-2 font-semibold text-black">공학 학습의 새로운 기준</h2>
         </div>
-        <strong className="text-xl text-black text-center leading-relaxed">
-          교과서 그림만으로는 이해하기 어려운 복잡한 기계 구조, 이제 3D로 돌려보고 분해하며
-          배우세요.
+        <strong className="text-lg font-medium text-center leading-relaxed">
+          교과서 그림만으로는 이해하기 어려운 복잡한 기계 구조,
+          <br />
+          이제 3D로 돌려보고 분해하며 배우세요.
         </strong>
       </div>
 

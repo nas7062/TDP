@@ -32,20 +32,22 @@ export default function SelectClient({ category }: Props) {
   }, [selectedTab]);
 
   return (
-    <div className="w-screen h-screen flex flex-col gap-10 mt-20 ">
-      <div className="w-full">
-        <h2 className="text-center font-semibold text-2xl">학습 기계 장비를 선택해주세요.</h2>
-      </div>
-      <div>
-        <Tab selectedTab={selectedTab} setSelectedTab={setSelectedTab} category={category} />
-      </div>
-      <div className="grid grid-cols-4 justify-center gap-4 mt-6 max-w-7xl w-full mx-auto">
-        {/* {machineList[selectedTab].map((item, index) => (
+    <div className="bg-[url('/images/BlueBackground.png')] bg-[length:100%_50%] bg-no-repeat bg-top mt-[-64px] w-screen h-screen ">
+      <div className="flex flex-col gap-10 pt-20 px-8">
+        <div className="">
+          <h2 className="text-center font-semibold text-2xl">학습 기계 장비를 선택해주세요.</h2>
+        </div>
+        <div>
+          <Tab selectedTab={selectedTab} setSelectedTab={setSelectedTab} category={category} />
+        </div>
+        <div className="grid grid-cols-4 justify-center gap-4 mt-6 max-w-7xl w-full mx-auto">
+          {/* {machineList[selectedTab].map((item, index) => (
           <ModelCard model={item} key={index} />
         ))} */}
-        {modelList.map((item, index) => (
-          <ModelCard model={item} key={index} />
-        ))}
+          {modelList.map((item, index) => (
+            <ModelCard model={item} key={index} />
+          ))}
+        </div>
       </div>
     </div>
   );
