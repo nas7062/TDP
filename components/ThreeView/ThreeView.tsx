@@ -1,7 +1,7 @@
 "use client";
 
 import { Canvas } from "@react-three/fiber";
-import { useRef, useState } from "react";
+import { Dispatch, SetStateAction, useRef, useState } from "react";
 import { OrbitControls } from "@react-three/drei";
 import { OrbitControls as ThreeOrbitControls } from "three-stdlib";
 import * as THREE from "three";
@@ -10,9 +10,13 @@ import ActionButton from "../ActionButton";
 import { ExplodeModal } from "../ExplodeModal";
 import { useRouter } from "next/navigation";
 
-export default function ThreeView() {
+interface Props {
+  setSelectedName: Dispatch<SetStateAction<string | null>>;
+  selectedName: string | null;
+}
+
+export default function ThreeView({ setSelectedName, selectedName }: Props) {
   const [modelPath] = useState("/models/Drone2.glb");
-  const [selectedName, setSelectedName] = useState<string | null>(null);
   const [explode, setExplode] = useState(0);
   const [level, setLevel] = useState(1);
   const originalPositions = useRef<Map<string, THREE.Vector3>>(new Map());

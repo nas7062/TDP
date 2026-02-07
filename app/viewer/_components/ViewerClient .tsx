@@ -18,6 +18,7 @@ export default function ViewerClient() {
   const [model, setModel] = useState<IModelDetail | null>(null);
   const modelIdx = Number(searchParams.get("modelIdx"));
   const [loading, setLoading] = useState(false);
+  const [selectedName, setSelectedName] = useState<string | null>(null);
   const [user, setUser] = useState<IUser | null>(null);
   const hnadleMenuClose = () => {
     setIsMenu(!isMenu);
@@ -44,6 +45,18 @@ export default function ViewerClient() {
     };
     fetchModel();
   }, [modelIdx, user?.idx]);
+
+  useEffect(() => {
+    if (!selectedName) {
+      setSelectedPart(null);
+      setIsDetail(false);
+      return;
+    }
+
+    const part = model?.items.find((p) => p.name === selectedName) ?? null;
+    setSelectedPart(part);
+    setIsDetail(!!part);
+  }, [selectedName, model?.items]);
 
   return (
     <div className="flex w-screen h-screen px-2">
@@ -81,7 +94,7 @@ export default function ViewerClient() {
         </div>
       </div>
       <div className="flex-1 ">
-        <ThreeView />
+        <ThreeView setSelectedName={setSelectedName} selectedName={selectedName} />
       </div>
       <RightPannel />
     </div>
