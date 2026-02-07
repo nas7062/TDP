@@ -1,9 +1,9 @@
 "use client";
 
 import { Canvas } from "@react-three/fiber";
-import { OrbitControls } from "@react-three/drei";
 import { useRef, useState } from "react";
-import { OrbitControls as OrbitControlsImpl } from "three-stdlib";
+import { OrbitControls } from "@react-three/drei";
+import { OrbitControls as ThreeOrbitControls } from "three-stdlib";
 import * as THREE from "three";
 import { Model } from "./ModelLoader ";
 import ActionButton from "../ActionButton";
@@ -21,7 +21,7 @@ export default function ThreeView() {
   const [axis, setAxis] = useState<AxisType>("Center");
 
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
-  const controlsRef = useRef<OrbitControlsImpl | null>(null);
+  const controlsRef = useRef<ThreeOrbitControls | null>(null);
   const router = useRouter();
   //최초 카메라 상태 저장
   const initialCamPos = useRef<THREE.Vector3 | null>(null);
@@ -80,7 +80,7 @@ export default function ThreeView() {
         <OrbitControls
           makeDefault
           ref={(c) => {
-            controlsRef.current = c as unknown as OrbitControlsImpl;
+            controlsRef.current = c;
             captureInitialCamera();
           }}
         />
