@@ -35,7 +35,7 @@ export function Model({
 }: Props) {
   const gltf = useGLTF(modelPath);
   const root = gltf.scene;
-  // 메쉬 목록 캐시 
+  // 메쉬 목록 캐시
   const meshes = useMemo(() => {
     const list: THREE.Mesh[] = [];
     root.traverse((o) => {
@@ -83,7 +83,7 @@ export function Model({
         const dist = explode * 0.1 * level;
         if (dir.lengthSq() === 0) dir.set(0, 1, 0);
         switch (axis) {
-          case 'Center': {
+          case "Center": {
             mesh.position.copy(base.clone().add(dir.multiplyScalar(dist)));
             break;
           }
@@ -103,7 +103,6 @@ export function Model({
             break;
           }
         }
-
       }
 
       // 선택된 메쉬만 빨간색, 나머지는 원래 색
@@ -119,8 +118,7 @@ export function Model({
       if (Array.isArray(mesh.material)) mesh.material.forEach((m) => applyColor(m, target));
       else applyColor(mesh.material, target);
     }
-  }, [explode, selectedUuid, meshes, originalPositions, originalColors]);
-
+  }, [explode, selectedUuid, meshes, originalPositions, originalColors, axis, level]);
 
   // reset
   useEffect(() => {
