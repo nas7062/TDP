@@ -29,3 +29,38 @@ type ChatMessage = {
   message: string;
   createDate?: string;
 };
+
+// memo api
+type MemoListRequest = {
+  userIdx: number;
+  modelIdx: number;
+};
+type MemoListResponse = {
+  totalCount: number;
+  contents: MemoContent[];
+};
+type MemoContent = {
+  idx: number;
+  memo: string;
+};
+
+type MemoRequest = {
+  userIdx: number;
+  modelIdx: number;
+  memo: string;
+};
+type MemoResponse = {
+  idx: number;
+};
+
+type MemoUpdateRequest = {
+  userIdx: number;
+  modelIdx: number;
+  memoIdx: number;
+  memo: string;
+};
+type MemoDeleteRequest = {
+  userIdx: number;
+  modelIdx: number;
+  memoIdx: number;
+};

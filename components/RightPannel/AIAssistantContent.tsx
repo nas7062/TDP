@@ -21,21 +21,7 @@ const MAX_LINES = 3;
 const MIN_HEIGHT = LINE_HEIGHT + PADDING_Y; // 1줄
 const MAX_HEIGHT = LINE_HEIGHT * MAX_LINES + PADDING_Y; // 3줄
 
-const initialMessages: ChatMessage[] = [
-  {
-    type: "REQUEST",
-    message: "지금 하이라이트된 부품이 엔진 전체에서 정확히 어떤 역할을 해?",
-    createDate: "2026-02-05T13:06:12.107Z"
-  },
-  {
-    type: "RESPONSE",
-    message:
-      "터빈 블레이드는 고온·고압 가스의 에너지를 회전 동력으로 바꾸는 핵심 부품입니다. [View: 연소실-터빈 연결부]로 시점을 전환해 드릴게요. 보시면 연소실에서 나온 팽창 가스가 이 날개들을 밀어내며 샤프트를 돌리게 됩니다.",
-    createDate: "2026-02-05T13:06:12.107Z"
-  }
-];
-
-// RoomId 맨처음에는 기본적으로 빈값인데, submit 시에 생성됨
+// TODO: SSE 연결로 변경 로딩이 너무 오래 걸림
 export default function AIAssistantContent({
   uiType,
   setUiType,
@@ -44,12 +30,14 @@ export default function AIAssistantContent({
   selectedChat,
   setChatList
 }: Props) {
-  const userIdx = typeof window !== "undefined" ? localStorage.getItem("userIdx") : "";
+  const userIdx =
+    typeof window !== "undefined" ? JSON.parse(localStorage.getItem("user") ?? "{}")?.idx : "";
+
   const searchParams = useSearchParams();
   const modelIdx = searchParams.get("modelIdx") ? parseInt(searchParams.get("modelIdx")!) : 0;
 
   const [inputValue, setInputValue] = useState("");
-  const [messages, setMessages] = useState<ChatMessage[]>(initialMessages);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isFetching, setIsFetching] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
@@ -89,7 +77,7 @@ export default function AIAssistantContent({
     setMessages(selectedChat?.messages || []);
   }, [selectedChat]);
 
-  // 메세지 보내기
+  // 메세지 보내기 (RoomId 맨처음에는 기본적으로 빈값인데, submit 시에 생성)
   const submitMessage = async () => {
     if (!inputValue.trim() || isFetching || isNaN(Number(userIdx))) return;
 
@@ -192,7 +180,7 @@ export default function AIAssistantContent({
                 className={`flex ${msg.type === "REQUEST" ? "justify-end" : "justify-start"}`}
               >
                 <div
-                  className={`rounded-2xl px-4 py-2.5 text-[16px] font-medium leading-relaxed whitespace-pre-line ${
+                  className={`rounded-2xl px-4 py-2.5 text-[15px] font-medium leading-relaxed whitespace-pre-line ${
                     msg.type === "REQUEST"
                       ? "max-w-[85%] bg-gray-200 text-gray-800 rounded-tr-none"
                       : "max-w-[90%] bg-white text-gray-800"

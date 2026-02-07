@@ -6,17 +6,23 @@ import AIAssistantContent from "./AIAssistantContent";
 import MemoContent from "./MemoContent";
 import { getChatList } from "@/lib/api/aiAssistant";
 import { useSearchParams } from "next/navigation";
+import { getMemoList } from "@/lib/api/memo";
 
 const contentList: RightPannelContentType[] = ["AI 어시스턴스", "메모장"];
 
 export default function RightPannel() {
-  const userIdx = typeof window !== "undefined" ? localStorage.getItem("userIdx") : "";
+  const userIdx =
+    typeof window !== "undefined" ? JSON.parse(localStorage.getItem("user") ?? "{}")?.idx : "";
+
   const searchParams = useSearchParams();
   const modelIdx = searchParams.get("modelIdx") ? parseInt(searchParams.get("modelIdx")!) : 0;
 
   const [uiType, setUiType] = useState<RightPannelUIType>("default");
   const [contentType, setContentType] = useState<RightPannelContentType>("AI 어시스턴스");
+  const [sideContentType, setSideContentType] = useState<RightPannelSideContentType>("history");
+
   const onClickExpandBtn = () => {
+    setSideContentType((prev) => (uiType !== "default" ? "history" : prev));
     setUiType(uiType === "default" ? "expanded" : "default");
   };
 
@@ -26,6 +32,12 @@ export default function RightPannel() {
     () => chatList.find((chat) => chat.roomId === roomId),
     [chatList, roomId]
   );
+  const [memoList, setMemoList] = useState<MemoContent[]>([]);
+  const [memoIdx, setMemoIdx] = useState<number | null>(null);
+  const selectedMemo = useMemo(
+    () => memoList.find((memo) => memo.idx === memoIdx),
+    [memoList, memoIdx]
+  );
 
   useEffect(() => {
     let cancelled = false;
@@ -34,15 +46,23 @@ export default function RightPannel() {
         if (isNaN(Number(userIdx))) return;
         const res = await getChatList({ userIdx: Number(userIdx), modelIdx });
         if (!cancelled && res?.contents) setChatList(res.contents);
-      } catch {
-        // 채팅 목록 조회 실패 시 무시
-      }
+      } catch {}
     }
-    fetchChatList();
+
+    async function fetchMemoList() {
+      try {
+        if (isNaN(Number(userIdx))) return;
+        const res = await getMemoList({ userIdx: Number(userIdx), modelIdx });
+        if (!cancelled && res?.contents) setMemoList(res.contents);
+      } catch {}
+    }
+
+    if (contentType === "AI 어시스턴스") fetchChatList();
+    if (contentType === "메모장") fetchMemoList();
     return () => {
       cancelled = true;
     };
-  }, [modelIdx]);
+  }, [modelIdx, contentType]);
 
   return (
     <div
@@ -53,9 +73,14 @@ export default function RightPannel() {
         uiType={uiType}
         setUiType={setUiType}
         contentType={contentType}
+        sideContentType={sideContentType}
+        setSideContentType={setSideContentType}
         chatList={chatList}
-        setRoomId={setRoomId}
         roomId={roomId}
+        setRoomId={setRoomId}
+        memoList={memoList}
+        memoIdx={memoIdx}
+        setMemoIdx={setMemoIdx}
       />
 
       {/* 오른쪽 메인 영역 */}
@@ -98,7 +123,16 @@ export default function RightPannel() {
             setChatList={setChatList}
           />
         )}
-        {contentType === "메모장" && <MemoContent uiType={uiType} setUiType={setUiType} />}
+        {contentType === "메모장" && (
+          <MemoContent
+            uiType={uiType}
+            setUiType={setUiType}
+            memoIdx={memoIdx}
+            setMemoIdx={setMemoIdx}
+            selectedMemo={selectedMemo}
+            setMemoList={setMemoList}
+          />
+        )}
       </div>
     </div>
   );
