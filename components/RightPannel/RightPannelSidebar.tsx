@@ -16,6 +16,7 @@ type Props = {
   sideContentType: RightPannelSideContentType;
   setSideContentType: Dispatch<SetStateAction<RightPannelSideContentType>>;
   memoList?: MemoContent[];
+  setMemoList?: Dispatch<SetStateAction<MemoContent[]>>;
   memoIdx?: number | null;
   setMemoIdx: Dispatch<SetStateAction<number | null>>;
 };
@@ -31,6 +32,7 @@ export default function RightPannelSidebar({
   roomId,
   setRoomId,
   memoList,
+  setMemoList,
   memoIdx,
   setMemoIdx //데이터 관련
 }: Props) {
@@ -45,7 +47,7 @@ export default function RightPannelSidebar({
 
   // 검색 api 호출
   useEffect(() => {
-    if (debouncedInputValue.trim().length > 0) {
+    if (sideContentType === "search") {
       const searchMemoList = async () => {
         const res = await searchMemo({
           userIdx: Number(userIdx),
@@ -97,10 +99,20 @@ export default function RightPannelSidebar({
   const onClickXBtn = () => {
     setSideContentType("history");
     setInputValue("");
+    setSearchMemoList([]);
+    setSearchChatList([]);
   };
 
-  const onClickMemoDeleteBtn = (memoIdx: number) => {
-    deleteMemo({ userIdx: Number(userIdx), modelIdx: Number(modelIdx), memoIdx });
+  const onClickMemoDeleteBtn = async (selectedMemoIdx: number) => {
+    await deleteMemo({
+      userIdx: Number(userIdx),
+      modelIdx: Number(modelIdx),
+      memoIdx: selectedMemoIdx
+    });
+    if (memoIdx == selectedMemoIdx) setMemoIdx(null);
+
+    setMemoList?.((prev) => prev.filter((m) => m.idx !== selectedMemoIdx));
+    setSearchMemoList((prev) => prev.filter((m) => m.idx !== selectedMemoIdx));
   };
 
   // TODO: 채팅 삭제 api 추가 및 연동 필요
@@ -161,10 +173,7 @@ export default function RightPannelSidebar({
               >
                 <p className={`group-hover:max-w-[120px] max-w-[155px] truncate h-[38px] `}>
                   {sideContentType === "search" && debouncedInputValue.trim()
-                    ? highlightKeyword(
-                        item.messages?.[0]?.message ?? "",
-                        debouncedInputValue
-                      )
+                    ? highlightKeyword(item.messages?.[0]?.message ?? "", debouncedInputValue)
                     : item.messages?.[0]?.message}
                 </p>
                 <button
@@ -186,16 +195,16 @@ export default function RightPannelSidebar({
               >
                 <p className={`group-hover:max-w-[120px] max-w-[155px] truncate h-[38px] `}>
                   {sideContentType === "search" && debouncedInputValue.trim()
-                    ? highlightKeyword(
-                        item.memo ?? "내용 없음",
-                        debouncedInputValue
-                      )
+                    ? highlightKeyword(item.memo ?? "내용 없음", debouncedInputValue)
                     : item.memo || "내용 없음"}
                 </p>
                 <button
                   role="button"
                   className="absolute right-1.5 top-2 hidden group-hover:block"
-                  onClick={() => onClickMemoDeleteBtn(item.idx)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onClickMemoDeleteBtn(item.idx);
+                  }}
                 >
                   <Image src={"/icons/Trash.svg"} alt="삭제" width={20} height={20} />
                 </button>

@@ -35,12 +35,9 @@ export default function MemoContent({
 
   // selectedMemo가 변경되면 inputValue 업데이트
   useEffect(() => {
-    console.log("selectedMemo", selectedMemo);
-    console.log("memoIdx", memoIdx);
     if (memoIdx !== null && selectedMemo) {
       setInputValue(selectedMemo?.memo || "");
     } else {
-      console.log("selectedMemo 초기화", selectedMemo);
       setInputValue("");
     }
   }, [memoIdx, selectedMemo]);
@@ -59,23 +56,21 @@ export default function MemoContent({
   useEffect(() => {
     const ta = textareaRef.current;
     if (!ta) return;
-    if (uiType === "expanded") {
+    if (uiType !== "default") {
       ta.style.height = "100%";
     } else {
       ta.style.height = `${MIN_HEIGHT}px`;
     }
   }, [uiType]);
 
-  // debouncedInputValue가 변경될 때마다 저장 (useDebounce로 500ms 지연된 값)
+  // debouncedInputValue가 변경될 때마다 저장
   useEffect(() => {
-    console.log("debouncedInputValue", debouncedInputValue);
-    console.log("userIdx", userIdx);
     if (!userIdx) return;
 
     const save = async () => {
       try {
         console.log("save");
-        if (memoIdx === null || memoIdx === undefined) {
+        if ((memoIdx === null || memoIdx === undefined) && debouncedInputValue.trim().length > 0) {
           const res = await makeMemo({
             userIdx: parseInt(userIdx),
             memo: debouncedInputValue,
@@ -83,7 +78,7 @@ export default function MemoContent({
           });
           setMemoIdx(res.idx);
           setMemoList((prev) => [{ idx: res.idx, memo: debouncedInputValue }, ...prev]);
-        } else {
+        } else if (memoIdx !== null && memoIdx !== undefined) {
           await updateMemo({
             userIdx: parseInt(userIdx),
             memo: debouncedInputValue,

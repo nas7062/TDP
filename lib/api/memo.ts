@@ -93,7 +93,7 @@ export async function searchMemo({
   modelIdx
 }: MemoSearchRequest): Promise<MemoSearchResponse> {
   const res = await fetch(`/proxy/model/${modelIdx}/user/${userIdx}/memo/search`, {
-    method: "PUT",
+    method: "POST",
     headers: {
       Accept: "application/json",
       "Content-Type": "application/json"
@@ -108,5 +108,5 @@ export async function searchMemo({
     body && typeof body === "object" && "message" in body
       ? (body as { message: string }).message
       : undefined;
-  throw new Error(errMessage || "메모 생성 실패");
+  throw new Error(errMessage || "메모 검색 실패");
 }

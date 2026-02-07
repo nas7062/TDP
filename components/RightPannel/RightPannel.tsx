@@ -79,6 +79,7 @@ export default function RightPannel() {
         roomId={roomId}
         setRoomId={setRoomId}
         memoList={memoList}
+        setMemoList={setMemoList}
         memoIdx={memoIdx}
         setMemoIdx={setMemoIdx}
       />
