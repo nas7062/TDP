@@ -1,39 +1,38 @@
 import { Dispatch, SetStateAction } from "react";
 
 type Props = {
-  selectedTab: string;
-  setSelectedTab: Dispatch<SetStateAction<TabType>>;
+  selectedTab: number;
+  setSelectedTab: Dispatch<SetStateAction<number>>;
+  category: ICategory | undefined;
 };
 
-export default function Tab({ selectedTab, setSelectedTab }: Props) {
+export default function Tab({ selectedTab, setSelectedTab, category }: Props) {
+
   return (
     <div className="flex justify-center items-center">
-      <div className="flex bg-gray-200 rounded-lg overflow-hidden">
-        <button
-          onClick={() => setSelectedTab("기계공학")}
-          className={`px-6 py-2 transition-colors duration-300 border cursor-pointer border-gray-500 rounded-l-2xl ${
-            selectedTab === "기계공학" ? "bg-black text-white" : "bg-white text-black"
-          }`}
-        >
-          기계공학
-        </button>
-        <button
-          onClick={() => setSelectedTab("생명공학")}
-          className={`px-6 py-2 transition-colors duration-300 border-t border-b  cursor-pointer border-b-gray-500 border-t-gray-500  ${
-            selectedTab === "생명공학" ? "bg-black text-white" : "bg-white text-black"
-          }`}
-        >
-          생명공학
-        </button>
-        <button
-          onClick={() => setSelectedTab("의공학")}
-          className={`px-6 py-2 transition-colors duration-300 border border-gray-500   cursor-pointer rounded-r-2xl ${
-            selectedTab === "의공학" ? "bg-black text-white" : "bg-white text-black"
-          }`}
-        >
-          의공학
-        </button>
+      <div className="flex bg-white border rounded-2xl overflow-hidden">
+        {category?.contents.map((cate) =>
+          <button
+            key={cate.idx}
+            onClick={() => setSelectedTab(cate.idx)}
+            className={`px-6 py-2 transition-colors duration-300 cursor-pointer rounded-2xl 
+              ${selectedTab === cate.idx ? "bg-black text-white" : "bg-white text-black"}`}>
+            {cate.name}
+          </button>)}
       </div>
-    </div>
+      {/* <div className="flex bg-white  overflow-hidden border rounded-2xl ">
+        {['기계공학', '생명공학', '의공학'].map((cate, idx) =>
+          <button
+            key={idx}
+            onClick={() => setSelectedTab(cate)}
+            className={`px-6 py-2 transition-colors duration-300  cursor-pointer  rounded-2xl
+              ${selectedTab === cate ? "bg-black text-white" : "bg-white text-black"
+              }`}
+          >
+            {cate}
+          </button>)}
+
+      </div> */}
+    </div >
   );
 }

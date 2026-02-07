@@ -4,8 +4,14 @@ import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+import ActionButton from "./ActionButton";
+import { ActionButtons } from "@/constant";
 
-export default function ThreeViewer() {
+interface Props {
+  onMeshSelect: (meshData: any) => void;
+}
+
+export default function ThreeViewer({ onMeshSelect }: Props) {
   const mountRef = useRef<HTMLDivElement>(null);
   const droneRef = useRef<THREE.Object3D | null>(null);
   const originalPositions = useRef<Map<string, THREE.Vector3>>(new Map());
@@ -21,12 +27,12 @@ export default function ThreeViewer() {
 
     /* 카메라 */
     const camera = new THREE.PerspectiveCamera(
-      20,
+      30,
       mountRef.current.clientWidth / mountRef.current.clientHeight,
       0.1,
       100
     );
-    camera.position.set(3, 2.5, 3);
+    camera.position.set(6, 6, 5);
     camera.lookAt(0, 0, 0);
 
     /* 렌더러 */
@@ -50,7 +56,7 @@ export default function ThreeViewer() {
     controls.enableZoom = true;
     controls.zoomSpeed = 1.0;
     controls.minDistance = 2; // 너무 가까이 못 가게
-    controls.maxDistance = 12; // 너무 멀리 못 가게
+    controls.maxDistance = 15; // 너무 멀리 못 가게
 
     /* glb 로드 영역 */
     const loader = new GLTFLoader();
@@ -65,9 +71,11 @@ export default function ThreeViewer() {
       //  원래 위치 저장 + name 부여
       let idx = 0;
       drone.traverse((obj) => {
+        console.log(obj);
         if ((obj as any).isMesh) {
           const mesh = obj as THREE.Mesh;
-          mesh.name = `Wing-${idx}`; // 예: Wing-0, Wing-1, ...
+          mesh.name = `name-${idx}`;
+          mesh.meshId = idx.toString();
           idx += 1;
 
           // 각 mesh의 material을 클론하여 독립적으로 만들어줌
@@ -124,9 +132,13 @@ export default function ThreeViewer() {
       if (intersects.length > 0) {
         const hit = intersects[0];
         const obj = hit.object as THREE.Mesh;
-
-        console.log("clicked uuid:", obj.uuid, "name:", obj.name);
-
+        const meshId = `mesh-${obj.uuid}`;
+        const meshData = {
+          id: meshId,
+          name: obj.name,
+          uuid: obj.uuid,
+        };
+        onMeshSelect(meshData);
         // 선택된 메쉬 ref 에도 저장
         selectedMeshRef.current = obj;
 
@@ -269,6 +281,9 @@ export default function ThreeViewer() {
           width: "300px"
         }}
       />
+      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 flex gap-1">
+        {ActionButtons.map((button) => <ActionButton key={button.label} icon={button.icon} label={button.label} />)}
+      </div>
     </div>
   );
 }
