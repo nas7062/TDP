@@ -1,3 +1,6 @@
+/** 로그인 여부 확인용 쿠키 이름 (Proxy에서 리다이렉트 판단, 클라이언트에서 설정) */
+export const USER_COOKIE_NAME = "tdp-user";
+
 export const machineList = {
   기계공학: [
     { name: "로봇 팔", img: "/images/Arm.png" },
@@ -90,10 +93,49 @@ export const PartListMock: IPart[] = [
   }
 ];
 
-
 export const AXIS_OPTIONS: { label: string; value: AxisType }[] = [
   { label: "중앙", value: "Center" },
   { label: "X축", value: "X" },
   { label: "Y축", value: "Y" },
-  { label: "Z축", value: "Z" },
+  { label: "Z축", value: "Z" }
 ];
+
+export const CHIP_LEVEL_CONFIG = {
+  6: {
+    label: "마스터 엔지니어",
+    className: "bg-[#FFE4A0] text-[#FF9421]"
+  },
+  5: {
+    label: "수석 설계자",
+    className: "bg-[#F6E4FF] text-[#AC76CC]"
+  },
+  4: {
+    label: "전문 기술자",
+    className: "bg-[#FFDFDE] text-[#EA544C]"
+  },
+  3: {
+    label: "매커닉",
+    className: "bg-[#BBF4F8] text-[#0F9BB6]"
+  },
+  2: {
+    label: "테크니션",
+    className: "bg-[#C7F2CE] text-[#3D913B]"
+  },
+  1: {
+    label: "입문 지망생",
+    className: "bg-[#B8E4FF] text-[#335C6F]"
+  }
+} as const;
+
+export type ChipLevel = keyof typeof CHIP_LEVEL_CONFIG;
+
+export const MENU_TOP_ITEMS = [
+  { label: "나의 학습 데이터", icon: "/icons/Graph.svg" },
+  { label: "워크 플로우", icon: "/icons/Workflow.svg" },
+  { label: "PDF 내보내기", icon: "/icons/Pdf.svg" }
+] as const;
+
+export const MENU_BOTTOM_ITEMS = [
+  { label: "홈화면", icon: "/icons/Home.svg", href: "/select" },
+  { label: "로그아웃", icon: "/icons/Logout.svg", isLogout: true }
+] as const;
