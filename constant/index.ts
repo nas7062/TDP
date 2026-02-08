@@ -130,9 +130,9 @@ export const CHIP_LEVEL_CONFIG = {
 export type ChipLevel = keyof typeof CHIP_LEVEL_CONFIG;
 
 export const MENU_TOP_ITEMS = [
-  { label: "나의 학습 데이터", icon: "/icons/Graph.svg" },
+  { label: "나의 학습 데이터", icon: "/icons/Graph.svg", href: "/learning-data" },
   { label: "워크 플로우", icon: "/icons/Workflow.svg" },
-  { label: "PDF 내보내기", icon: "/icons/Pdf.svg" }
+  { label: "PDF 내보내기", icon: "/icons/Pdf.svg", href: "/pdf" }
 ] as const;
 
 export const MENU_BOTTOM_ITEMS = [

@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { clearUserAuth } from "@/lib/auth";
 import { Dialog, DialogContent, DialogFooter, DialogTitle } from "@/components/ui/dialog";
@@ -16,18 +16,30 @@ export interface HeaderMenuProps {
 export function HeaderMenu({ onLogout }: HeaderMenuProps) {
   const [popupOpen, setPopupOpen] = useState(false);
   const [logoutModalOpen, setLogoutModalOpen] = useState(false);
+  const [toastVisible, setToastVisible] = useState(false);
   const popupRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const pathname = usePathname();
   const isHome = pathname === "/";
+  const searchParams = useSearchParams();
+  const modelIdx = parseInt(searchParams.get("modelIdx") ?? "");
 
-  console.log(pathname);
   const topItems = isHome
     ? MENU_TOP_ITEMS.filter((item) => item.label !== "PDF 내보내기")
     : [...MENU_TOP_ITEMS];
   const bottomItems = isHome
     ? MENU_BOTTOM_ITEMS.filter((item) => item.label !== "홈화면")
     : [...MENU_BOTTOM_ITEMS];
+
+  const handleTopItemClick = (item: (typeof MENU_TOP_ITEMS)[number]) => {
+    if ("href" in item && item.href) {
+      setPopupOpen(false);
+      router.push(`${item.href}${item.href === "/pdf" ? `?modelIdx=${modelIdx}` : ""}`);
+    } else {
+      setToastVisible(true);
+      setTimeout(() => setToastVisible(false), 2000);
+    }
+  };
 
   const handleLogout = () => {
     clearUserAuth();
@@ -72,6 +84,7 @@ export function HeaderMenu({ onLogout }: HeaderMenuProps) {
                   key={item.label}
                   type="button"
                   className="flex flex-col items-center justify-center gap-2 p-2 rounded-lg hover:bg-gray-50 w-[120px] h-[90px]"
+                  onClick={() => handleTopItemClick(item)}
                 >
                   <Image
                     src={item.icon}
@@ -136,6 +149,16 @@ export function HeaderMenu({ onLogout }: HeaderMenuProps) {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {toastVisible && (
+        <div
+          className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[100] px-4 py-2.5 rounded-lg bg-gray-800 text-white text-sm font-medium shadow-lg animate-in fade-in duration-200"
+          role="status"
+          aria-live="polite"
+        >
+          개발 중입니다
+        </div>
+      )}
     </>
   );
 }
