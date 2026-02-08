@@ -93,7 +93,12 @@ export default function ViewerClient() {
         </div>
       </div>
       <div className="flex-1 ">
-        <ThreeView setSelectedName={setSelectedName} selectedName={selectedName} />
+        <ThreeView
+          setSelectedName={setSelectedName}
+          selectedName={selectedName}
+          user={user}
+          modelIdx={modelIdx}
+        />
       </div>
       <RightPannel />
     </div>

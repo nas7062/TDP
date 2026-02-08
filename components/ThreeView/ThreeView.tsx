@@ -1,11 +1,19 @@
 "use client";
 
 import { Canvas } from "@react-three/fiber";
-import { Dispatch, SetStateAction, useRef, useState } from "react";
+import {
+  Dispatch,
+  SetStateAction,
+  Suspense,
+  useCallback,
+  useEffect,
+  useRef,
+  useState
+} from "react";
 import { OrbitControls } from "@react-three/drei";
 import { OrbitControls as ThreeOrbitControls } from "three-stdlib";
 import * as THREE from "three";
-import { Model } from "./ModelLoader ";
+import { Model } from "./ModelLoader";
 import ActionButton from "../ActionButton";
 import { ExplodeModal } from "../ExplodeModal";
 import { useRouter } from "next/navigation";
@@ -13,9 +21,11 @@ import { useRouter } from "next/navigation";
 interface Props {
   setSelectedName: Dispatch<SetStateAction<string | null>>;
   selectedName: string | null;
+  user: IUser | null;
+  modelIdx: number;
 }
 
-export default function ThreeView({ setSelectedName, selectedName }: Props) {
+export default function ThreeView({ setSelectedName, selectedName, user, modelIdx }: Props) {
   const [modelPath] = useState("/models/Drone2.glb");
   const [explode, setExplode] = useState(0);
   const [level, setLevel] = useState(1);
@@ -67,13 +77,101 @@ export default function ThreeView({ setSelectedName, selectedName }: Props) {
     setSelectedName(null);
     setResetKey((k) => k + 1);
     resetCamera();
+    requestAnimationFrame(() => postSnapshot());
   };
+
+  const canvasElRef = useRef<HTMLCanvasElement | null>(null);
+
+  const stateRef = useRef({ explode, level, axis, selectedName });
+  useEffect(() => {
+    stateRef.current = { explode, level, axis, selectedName };
+  }, [explode, level, axis, selectedName]);
+
+  const buildSnapshot = useCallback((): ViewerState | null => {
+    const cam = cameraRef.current;
+    const ctrls = controlsRef.current;
+    if (!cam || !ctrls) return null;
+
+    const s = stateRef.current;
+
+    return {
+      modelPath,
+      explode: s.explode,
+      level: s.level,
+      axis: s.axis,
+      selectedName: s.selectedName,
+      camera: {
+        position: [cam.position.x, cam.position.y, cam.position.z],
+        quaternion: [cam.quaternion.x, cam.quaternion.y, cam.quaternion.z, cam.quaternion.w],
+        fov: cam.fov,
+        zoom: cam.zoom
+      },
+      controls: {
+        target: [ctrls.target.x, ctrls.target.y, ctrls.target.z]
+      },
+      updatedAt: new Date().toISOString()
+    };
+  }, [modelPath]);
+
+  const postSnapshot = useCallback(async () => {
+    const snap = buildSnapshot();
+    if (!snap || !user || !modelIdx) return;
+
+    const payload = {
+      model: modelIdx,
+      meta: snap
+    };
+
+    try {
+      const res = await fetch(`/proxy/user/${user.userId}/model-view`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) {
+        console.error("API 실패", res.status);
+      }
+    } catch (e) {
+      console.error("네트워크 오류", e);
+    }
+  }, [buildSnapshot, user, modelIdx]);
+
+  // 캔버스에서 발생한 모든 클릭 저장
+  const onAnyCanvasClick = useCallback(() => {
+    requestAnimationFrame(() => {
+      postSnapshot();
+    });
+  }, [postSnapshot]);
+
+  // gl.domElement에만 이벤트 걸기 + cleanup
+  const attachCanvasListeners = useCallback(
+    (canvas: HTMLCanvasElement) => {
+      canvas.addEventListener("click", onAnyCanvasClick, { passive: true });
+    },
+    [onAnyCanvasClick]
+  );
+
+  const detachCanvasListeners = useCallback(
+    (canvas: HTMLCanvasElement) => {
+      canvas.removeEventListener("click", onAnyCanvasClick);
+    },
+    [onAnyCanvasClick]
+  );
+
+  useEffect(() => {
+    const canvas = canvasElRef.current;
+    if (!canvas) return;
+
+    attachCanvasListeners(canvas);
+    return () => detachCanvasListeners(canvas);
+  }, [attachCanvasListeners, detachCanvasListeners]);
 
   return (
     <div className="w-full h-full relative bg-gray-100">
       <Canvas
         camera={{ position: [2, 5, 5], fov: 35 }}
-        onCreated={({ camera }) => {
+        onCreated={({ camera, gl }) => {
+          canvasElRef.current = gl.domElement;
           cameraRef.current = camera as THREE.PerspectiveCamera;
           captureInitialCamera();
         }}
@@ -88,17 +186,22 @@ export default function ThreeView({ setSelectedName, selectedName }: Props) {
             captureInitialCamera();
           }}
         />
-        <Model
-          modelPath={modelPath}
-          explode={explode}
-          selectedName={selectedName}
-          setSelectedName={setSelectedName}
-          originalColors={originalColors}
-          originalPositions={originalPositions}
-          level={level}
-          resetKey={resetKey}
-          axis={axis}
-        />
+        <Suspense fallback={null}>
+          <Model
+            modelPath={modelPath}
+            selectedName={selectedName}
+            setSelectedName={(name) => {
+              setSelectedName(name);
+              requestAnimationFrame(() => postSnapshot());
+            }}
+            originalColors={originalColors}
+            originalPositions={originalPositions}
+            explode={explode}
+            level={level}
+            axis={axis}
+            resetKey={resetKey}
+          />
+        </Suspense>
       </Canvas>
 
       <div className="fixed bottom-6 left-1/2 -translate-x-1/2 flex gap-1">
@@ -106,10 +209,19 @@ export default function ThreeView({ setSelectedName, selectedName }: Props) {
         <ActionButton icon="/icons/See.svg" label="보기" />
         <ExplodeModal
           explode={explode}
-          setExplode={setExplode}
+          setExplode={(v) => {
+            setExplode(v);
+            requestAnimationFrame(() => postSnapshot());
+          }}
           level={level}
-          setLevel={setLevel}
-          setAxis={setAxis}
+          setLevel={(v) => {
+            setLevel(v);
+            requestAnimationFrame(() => postSnapshot());
+          }}
+          setAxis={(v) => {
+            setAxis(v);
+            requestAnimationFrame(() => postSnapshot());
+          }}
           axis={axis}
         />
         <ActionButton icon="/icons/Reset.svg" label="초기화" onClick={onReset} />

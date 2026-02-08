@@ -51,3 +51,24 @@ type TabType = "기계공학" | "생명공학" | "의공학";
 type RightPannelUIType = "default" | "expanded" | "full"; // 기본 상태 / 아래위로 열린 상태 / 왼쪽패널도 있는 상태
 type RightPannelContentType = "AI 어시스턴스" | "메모장";
 type RightPannelSideContentType = "history" | "search"; // 기록 / 검색창
+
+
+type ViewerState = {
+  modelPath: string;
+  explode: number;
+  level: number;
+  axis: AxisType;
+  selectedName: string | null;
+
+  camera: {
+    position: [number, number, number];
+    quaternion: [number, number, number, number];
+    fov: number;
+    zoom: number;
+  };
+  controls: {
+    target: [number, number, number];
+  };
+
+  updatedAt: string; 
+};
