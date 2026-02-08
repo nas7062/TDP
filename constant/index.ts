@@ -1,3 +1,6 @@
+/** 로그인 여부 확인용 쿠키 이름 (Proxy에서 리다이렉트 판단, 클라이언트에서 설정) */
+export const USER_COOKIE_NAME = "tdp-user";
+
 export const machineList = {
   기계공학: [
     { name: "로봇 팔", img: "/images/Arm.png" },

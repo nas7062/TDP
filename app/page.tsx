@@ -1,15 +1,25 @@
 "use client";
 
+import { USER_COOKIE_NAME } from "@/constant";
 import { createUser, fetchUser } from "@/lib/api/user";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+
+/** 로그인 성공 시 localStorage + 쿠키 동기화 (Proxy에서 쿠키로 리다이렉트 판단) */
+function setUserAuth(userInfo: { userId: string; idx: number }) {
+  const value = JSON.stringify(userInfo);
+  localStorage.setItem("user", value);
+  // 미들웨어에서 읽을 수 있도록 쿠키 설정 (path=/, 1년)
+  document.cookie = `${USER_COOKIE_NAME}=${encodeURIComponent(value)}; path=/; max-age=31536000; SameSite=Lax`;
+}
 
 export default function Page() {
   const [userId, setUserId] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+
   const onSubmit = async () => {
     if (!userId) return;
     setLoading(true);
@@ -21,7 +31,7 @@ export default function Page() {
         userId: user.userId,
         idx: user.idx
       };
-      localStorage.setItem("user", JSON.stringify(userInfo));
+      setUserAuth(userInfo);
       router.replace("/select");
       return;
     } catch (error) {
@@ -35,7 +45,7 @@ export default function Page() {
             userId: user.userId,
             idx: user.idx
           };
-          localStorage.setItem("user", JSON.stringify(userInfo));
+          setUserAuth(userInfo);
           router.replace("/select");
           return;
         }
