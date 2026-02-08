@@ -90,10 +90,17 @@ export const PartListMock: IPart[] = [
   }
 ];
 
-
 export const AXIS_OPTIONS: { label: string; value: AxisType }[] = [
   { label: "중앙", value: "Center" },
   { label: "X축", value: "X" },
   { label: "Y축", value: "Y" },
-  { label: "Z축", value: "Z" },
+  { label: "Z축", value: "Z" }
 ];
+
+export function parseSnapshot(meta: string): ViewerState | null {
+  try {
+    return JSON.parse(meta) as ViewerState;
+  } catch {
+    return null;
+  }
+}

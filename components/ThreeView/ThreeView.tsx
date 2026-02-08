@@ -17,16 +17,18 @@ import { Model } from "./ModelLoader";
 import ActionButton from "../ActionButton";
 import { ExplodeModal } from "../ExplodeModal";
 import { useRouter } from "next/navigation";
+import { parseSnapshot } from "@/constant";
 
 interface Props {
   setSelectedName: Dispatch<SetStateAction<string | null>>;
   selectedName: string | null;
   user: IUser | null;
   modelIdx: number;
+  model: IModelDetail | null;
 }
 
-export default function ThreeView({ setSelectedName, selectedName, user, modelIdx }: Props) {
-  const [modelPath] = useState("/models/Engine5.glb");
+export default function ThreeView({ setSelectedName, selectedName, user, modelIdx, model }: Props) {
+  const [modelPath] = useState("/models/Drone3.glb");
   const [explode, setExplode] = useState(0);
   const [level, setLevel] = useState(1);
   const originalPositions = useRef<Map<string, THREE.Vector3>>(new Map());
@@ -167,10 +169,32 @@ export default function ThreeView({ setSelectedName, selectedName, user, modelId
     return () => detachCanvasListeners(canvas);
   }, [attachCanvasListeners, detachCanvasListeners]);
 
+  useEffect(() => {
+    if (!model?.meta) return;
+    const snap = parseSnapshot(model.meta);
+    if (!snap) return;
+
+    setExplode(0);
+    setSelectedName(null);
+    setAxis("Center");
+    setLevel(1);
+
+    //  메쉬를 원본 위치로 강제 복귀시키는 트리거
+    setResetKey((k) => k + 1);
+
+    // 프레임에 스냅샷 적용
+    requestAnimationFrame(() => {
+      setExplode(snap.explode);
+      setSelectedName(snap.selectedName);
+      setAxis(snap.axis);
+      setLevel(snap.level);
+    });
+  }, [model?.meta, setSelectedName]);
+
   return (
     <div className="w-full h-full relative bg-gray-100">
       <Canvas
-        camera={{ position: [2, 5, 5], fov: 35 }}
+        camera={{ position: [0, 6, 12], fov: 35 }}
         onCreated={({ camera, gl }) => {
           canvasElRef.current = gl.domElement;
           cameraRef.current = camera as THREE.PerspectiveCamera;
