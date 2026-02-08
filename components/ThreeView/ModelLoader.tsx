@@ -40,9 +40,18 @@ export function Model({
     const list: THREE.Mesh[] = [];
     root.traverse((o) => {
       if (o instanceof THREE.Mesh) list.push(o);
+      console.log({
+        meshName: o.name,
+        parentName: o.parent?.name
+      });
     });
     return list;
   }, [root]);
+  console.log(meshes);
+  const isBlocked = (name: string) => {
+    const n = name.toLowerCase();
+    return n.includes("솔리드") || n.includes("solid");
+  };
   //  material clone + 원래 색/위치 저장
   const inited = useRef(false);
   useEffect(() => {
@@ -145,6 +154,8 @@ export function Model({
       onPointerDown={(e) => {
         e.stopPropagation();
         const mesh = e.object as THREE.Mesh;
+        const name = mesh.name ?? "";
+        if (isBlocked(name)) return;
         setSelectedName(mesh.name);
       }}
     />

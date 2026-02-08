@@ -35,3 +35,6 @@ export async function createUser(userId: string): Promise<IUser> {
 
   throw new Error(body?.message || `유저 생성 실패`);
 }
+
+
+
