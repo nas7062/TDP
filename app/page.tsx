@@ -54,11 +54,11 @@ export default function Page() {
         <div className="flex flex-col gap-2 text-center">
           <h1 className="text-6xl font-bold text-black">
             <Image
-              src="/images/logo.png"
+              src="/images/Logo.png"
               alt="SIMVEX"
               width={230}
               height={86}
-              className="inline-block"
+              className="inline-block w-[230px] h-auto"
             />
           </h1>
           <h2 className="text-2xl mt-2 font-semibold text-black">공학 학습의 새로운 기준</h2>

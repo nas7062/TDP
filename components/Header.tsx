@@ -19,7 +19,13 @@ export default function Header() {
     <header className="h-16 relative flex items-center px-4 justify-between absolute top-0 left-0">
       <Link href="/">
         <h1 className="text-4xl  font-semibold cursor-pointer">
-          <Image src="/images/logo.png" alt="logo" width={77} height={24} />
+          <Image
+            src="/images/Logo.png"
+            alt="logo"
+            width={77}
+            height={24}
+            className="w-[77px] h-auto"
+          />
         </h1>
       </Link>
       {user?.userId && (
