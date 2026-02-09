@@ -50,10 +50,10 @@ export function Model({
     originalPositions.current.clear();
     originalColors.current.clear();
     modelCenter.current = null;
-  }, [modelPath, root]);
+  }, [modelPath, root, originalColors, originalPositions]);
   useEffect(() => {
     if (inited.current) return;
-    if (!meshes.length) return; // ✅ 비어 있으면 대기
+    if (!meshes.length) return;
 
     root.scale.set(5, 5, 5);
     root.updateMatrixWorld(true);
@@ -134,15 +134,17 @@ export function Model({
       worldBase.copy(baseLocal);
       parent.localToWorld(worldBase);
 
-      if (axis === "X") axisDir.set(1, 0, 0);
-      else if (axis === "Y") axisDir.set(0, 1, 0);
-      else if (axis === "Z") axisDir.set(0, 0, 1);
-      else {
-        centerDir.copy(worldBase).sub(modelCenter.current);
-        if (centerDir.lengthSq() === 0) centerDir.set(0, 1, 0);
-        centerDir.normalize();
-        axisDir.copy(centerDir);
-      }
+      // 모델 중심 기준 벡터 (world)
+      centerDir.copy(worldBase).sub(modelCenter.current!);
+
+      // 모델 중심
+      if (axis === "X") axisDir.set(centerDir.x, 0, 0);
+      else if (axis === "Y") axisDir.set(0, centerDir.y, 0);
+      else if (axis === "Z") axisDir.set(0, 0, centerDir.z);
+      else axisDir.copy(centerDir);
+
+      if (axisDir.lengthSq() === 0) axisDir.set(0, 1, 0);
+      axisDir.normalize();
 
       worldPos.copy(worldBase).addScaledVector(axisDir, dist);
 
