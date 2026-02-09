@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { HeaderMenu } from "./HeaderMenu";
 import { Chip } from "./ui/chip";
 import QuizButton from "./QuizButton/QuizButton";
@@ -39,10 +39,12 @@ export default function Header() {
           </div>
         )}
       </div>
-      <div className="flex items-center gap-[20px]">
-        {pathname === "/viewer" && <QuizButton />}
-        <HeaderMenu onLogout={() => setUser(null)} />
-      </div>
+      <Suspense fallback={null}>
+        <div className="flex items-center gap-[20px]">
+          {pathname === "/viewer" && <QuizButton />}
+          <HeaderMenu onLogout={() => setUser(null)} />
+        </div>
+      </Suspense>
     </header>
   );
 }

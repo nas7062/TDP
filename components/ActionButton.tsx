@@ -8,9 +8,12 @@ interface Props {
 
 export default function ActionButton({ icon, label, onClick }: Props) {
   return (
-    <div onClick={onClick} className="p-2 bg-gray-200 flex flex-col justify-center items-center rounded-lg w-24 cursor-pointer">
+    <div
+      onClick={onClick}
+      className="p-2 bg-gray-200 flex flex-col justify-center items-center rounded-lg w-24 cursor-pointer hover:bg-gray-300 transition-colors duration-200"
+    >
       <Image src={icon} alt="아이콘" width={30} height={30} />
       <p className="font-medium">{label}</p>
     </div>
   );
-} 
+}

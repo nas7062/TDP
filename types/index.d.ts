@@ -44,6 +44,8 @@ type AxisType = "Center" | "X" | "Y" | "Z";
 
 type TabType = "기계공학" | "생명공학" | "의공학";
 
+type ViewPreset = "TOP" | "BOTTOM" | "LEFT" | "RIGHT" | "FRONT" | "BACK";
+
 // 우측패널
 
 type RightPannelUIType = "default" | "expanded" | "full"; // 기본 상태 / 아래위로 열린 상태 / 왼쪽패널도 있는 상태
@@ -66,7 +68,6 @@ type ViewerState = {
   controls: {
     target: [number, number, number];
   };
-
   updatedAt: string;
 };
 

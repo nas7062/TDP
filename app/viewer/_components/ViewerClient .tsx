@@ -1,14 +1,32 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Image from "next/image";
-import SelectBox from "@/components/SelectBox";
 import { PartListMock } from "@/constant";
-import DetailBox from "@/components/DetailBox";
-import RightPannel from "@/components/RightPannel/RightPannel";
-import ThreeView from "@/components/ThreeView/ThreeView";
+
 import { fetchModelByIdx } from "@/lib/api/model";
+import dynamic from "next/dynamic";
+
+const ThreeView = dynamic(() => import("@/components/ThreeView/ThreeView"), {
+  ssr: false,
+  loading: () => <div className="w-full h-full flex items-center justify-center">3D 로딩 중...</div>
+});
+
+const SelectBox = dynamic(() => import("@/components/SelectBox"), {
+  ssr: false,
+  loading: () => <div className="p-4">메뉴 로딩 중...</div>
+});
+
+const DetailBox = dynamic(() => import("@/components/DetailBox"), {
+  ssr: false,
+  loading: () => <div className="p-4">상세 로딩 중...</div>
+});
+
+const RightPannel = dynamic(() => import("@/components/RightPannel/RightPannel"), {
+  ssr: false,
+  loading: () => null
+});
 
 export default function ViewerClient() {
   const searchParams = useSearchParams();
@@ -75,19 +93,21 @@ export default function ViewerClient() {
           className={`transition-transform duration-500 ease-in-out overflow-hidden 
             ${isMenu ? "max-h-screen transform translate-y-5" : "max-h-0 transform translate-y-0"}`}
         >
-          <SelectBox
-            partList={PartListMock}
-            setIsMenu={setIsMenu}
-            setSelectedPart={setSelectedPart}
-            setIsDetail={setIsDetail}
-            model={model}
-          />
+          {isMenu && (
+            <SelectBox
+              partList={PartListMock}
+              setIsMenu={setIsMenu}
+              setSelectedPart={setSelectedPart}
+              setIsDetail={setIsDetail}
+              model={model}
+            />
+          )}
         </div>
         <div
           className={`transition-transform duration-500 ease-in-out overflow-hidden 
             ${isDetail ? "max-h-screen transform translate-y-5" : "max-h-0 transform translate-y-0"}`}
         >
-          {selectedPart && (
+          {selectedPart && isDetail && (
             <DetailBox selectedPart={selectedPart} setIsDetail={setIsDetail} isDetail={isDetail} />
           )}
         </div>
@@ -101,7 +121,9 @@ export default function ViewerClient() {
           model={model}
         />
       </div>
-      <RightPannel />
+      <Suspense fallback={null}>
+        <RightPannel />
+      </Suspense>
     </div>
   );
 }
