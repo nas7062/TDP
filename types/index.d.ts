@@ -68,6 +68,7 @@ type ViewerState = {
   controls: {
     target: [number, number, number];
   };
-
   updatedAt: string;
 };
+
+type QuizModalView = "start" | "main" | "result";

@@ -83,3 +83,46 @@ type MemoSearchResponse = {
   totalCount: number;
   contents: MemoContent[];
 };
+
+// quiz api
+type QuizListRequest = {
+  modelIdx: number;
+  count?: number;
+};
+type QuizListResponse = {
+  totalCount: number;
+  contents: QuizContent[];
+};
+type QuizContent = {
+  idx: number;
+  quizContent: string;
+  quizOptions: QuizOption[];
+};
+type QuizOption = {
+  optionIdx: number;
+  optionContent: string;
+};
+type QuizSubmitRequest = {
+  userIdx: number;
+  modelIdx: number;
+  answers: QuizAnswer[];
+};
+type QuizAnswer = {
+  quizIdx: number;
+  answer: number; //optionIdx 보내기
+};
+
+type QuizSubmitResponse = {
+  totalCount: number;
+  correctCount: number;
+  results: QuizResult[];
+};
+type QuizResult = {
+  quizIdx: number;
+  isCorrect: boolean;
+  optionIdx: number; //제출한 답(보기)
+  correctOptionIdx: number; //정답(보기) 식별자
+  correctOptionContent: string; //정답(보기) 내용
+  quizContent: string; //문제 내용,
+  explanation: string; //해설
+};
