@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { HeaderMenu } from "./HeaderMenu";
 import { Chip } from "./ui/chip";
 
@@ -36,7 +36,9 @@ export default function Header() {
           </div>
         )}
       </div>
-      <HeaderMenu onLogout={() => setUser(null)} />
+      <Suspense fallback={null}>
+        <HeaderMenu onLogout={() => setUser(null)} />
+      </Suspense>
     </header>
   );
 }

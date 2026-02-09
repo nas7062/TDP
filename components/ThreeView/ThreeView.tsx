@@ -1,6 +1,6 @@
 "use client";
 
-import { Canvas } from "@react-three/fiber";
+import { Canvas, invalidate } from "@react-three/fiber";
 import {
   Dispatch,
   SetStateAction,
@@ -19,6 +19,7 @@ import { ExplodeModal } from "../ExplodeModal";
 import { useRouter } from "next/navigation";
 import { parseSnapshot } from "@/constant";
 import { CameraApplier } from "./CameraApplier";
+import ViewButtons from "../ViewButtons";
 
 interface Props {
   setSelectedName: Dispatch<SetStateAction<string | null>>;
@@ -30,7 +31,7 @@ interface Props {
 
 export default function ThreeView({ setSelectedName, selectedName, user, modelIdx, model }: Props) {
   const [modelPath] = useState("/models/Drone3.glb");
-
+  const [isMoveCamera, setIsMoveCamera] = useState(false);
   // 모델 분해 상태
   const [explode, setExplode] = useState(0);
   const [level, setLevel] = useState(1);
@@ -182,6 +183,60 @@ export default function ThreeView({ setSelectedName, selectedName, user, modelId
     [onAnyCanvasClick]
   );
 
+  const moveCameraToView = useCallback(
+    (view: ViewPreset) => {
+      const cam = cameraRef.current;
+      const ctrls = controlsRef.current;
+      if (!cam || !ctrls) return;
+
+      // 모델 중심은 OrbitControls 기준점
+      const target = ctrls.target.clone();
+
+      // 카메라와 타겟 거리 유지
+      const distance = cam.position.distanceTo(target);
+
+      const dir = new THREE.Vector3();
+
+      switch (view) {
+        case "FRONT":
+          dir.set(0, 0, 1);
+          break;
+        case "BACK":
+          dir.set(0, 0, -1);
+          break;
+        case "LEFT":
+          dir.set(-1, 0, 0);
+          break;
+        case "RIGHT":
+          dir.set(1, 0, 0);
+          break;
+        case "TOP":
+          dir.set(0, 1, 0);
+          break;
+        case "BOTTOM":
+          dir.set(0, -1, 0);
+          break;
+      }
+
+      // 새 카메라 위치 = 중심 + 방향 * 거리
+      const newPos = target.clone().add(dir.multiplyScalar(distance));
+
+      cam.position.copy(newPos);
+
+      // 카메라 방향을 target으로 정확히 맞춤
+      cam.lookAt(target);
+      cam.updateProjectionMatrix();
+
+      ctrls.target.copy(target);
+      ctrls.update();
+
+      invalidate();
+
+      requestAnimationFrame(() => postSnapshot());
+    },
+    [postSnapshot]
+  );
+
   useEffect(() => {
     const canvas = canvasElRef.current;
     if (!canvas) return;
@@ -264,8 +319,11 @@ export default function ThreeView({ setSelectedName, selectedName, user, modelId
       </Canvas>
 
       <div className="fixed bottom-6 left-1/2 -translate-x-1/2 flex gap-1">
-        <ActionButton icon="/icons/Home.svg" label="홈" onClick={() => router.push("/select")} />
-        <ActionButton icon="/icons/See.svg" label="보기" />
+        <ActionButton
+          icon="/icons/See.svg"
+          label="보기"
+          onClick={() => setIsMoveCamera(!isMoveCamera)}
+        />
         <ExplodeModal
           explode={explode}
           setExplode={(v) => {
@@ -285,6 +343,9 @@ export default function ThreeView({ setSelectedName, selectedName, user, modelId
         />
         <ActionButton icon="/icons/Reset.svg" label="초기화" onClick={onReset} />
       </div>
+      {isMoveCamera && (
+        <ViewButtons moveCameraToView={moveCameraToView} setIsMoveCamera={setIsMoveCamera} />
+      )}
     </div>
   );
 }

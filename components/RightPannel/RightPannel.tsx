@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, Suspense } from "react";
 import RightPannelSidebar from "./RightPannelSidebar";
 import AIAssistantContent from "./AIAssistantContent";
 import MemoContent from "./MemoContent";
@@ -69,21 +69,23 @@ export default function RightPannel() {
       className={`absolute right-3 top-[84px] p-7 pl-4 bg-white rounded-lg shadow-lg flex transition-all duration-300 ${uiType === "default" ? "h-[176px]" : "h-[812px]"} max-h-[calc(100vh-120px)] ${uiType === "full" ? "w-[529px]" : "w-[392px]"}`}
     >
       {/* 왼쪽 사이드 영역 */}
-      <RightPannelSidebar
-        uiType={uiType}
-        setUiType={setUiType}
-        contentType={contentType}
-        sideContentType={sideContentType}
-        setSideContentType={setSideContentType}
-        chatList={chatList}
-        setChatList={setChatList}
-        roomId={roomId}
-        setRoomId={setRoomId}
-        memoList={memoList}
-        setMemoList={setMemoList}
-        memoIdx={memoIdx}
-        setMemoIdx={setMemoIdx}
-      />
+      <Suspense fallback={null}>
+        <RightPannelSidebar
+          uiType={uiType}
+          setUiType={setUiType}
+          contentType={contentType}
+          sideContentType={sideContentType}
+          setSideContentType={setSideContentType}
+          chatList={chatList}
+          setChatList={setChatList}
+          roomId={roomId}
+          setRoomId={setRoomId}
+          memoList={memoList}
+          setMemoList={setMemoList}
+          memoIdx={memoIdx}
+          setMemoIdx={setMemoIdx}
+        />
+      </Suspense>
 
       {/* 오른쪽 메인 영역 */}
       <div className="ml-4 w-full flex flex-col justify-between min-h-0 flex-1">
@@ -116,24 +118,28 @@ export default function RightPannel() {
         {/* 메인 컨텐츠 영역 */}
 
         {contentType === "AI 어시스턴스" && (
-          <AIAssistantContent
-            uiType={uiType}
-            setUiType={setUiType}
-            roomId={roomId}
-            setRoomId={setRoomId}
-            selectedChat={selectedChat}
-            setChatList={setChatList}
-          />
+          <Suspense fallback={null}>
+            <AIAssistantContent
+              uiType={uiType}
+              setUiType={setUiType}
+              roomId={roomId}
+              setRoomId={setRoomId}
+              selectedChat={selectedChat}
+              setChatList={setChatList}
+            />
+          </Suspense>
         )}
         {contentType === "메모장" && (
-          <MemoContent
-            uiType={uiType}
-            setUiType={setUiType}
-            memoIdx={memoIdx}
-            setMemoIdx={setMemoIdx}
-            selectedMemo={selectedMemo}
-            setMemoList={setMemoList}
-          />
+          <Suspense fallback={null}>
+            <MemoContent
+              uiType={uiType}
+              setUiType={setUiType}
+              memoIdx={memoIdx}
+              setMemoIdx={setMemoIdx}
+              selectedMemo={selectedMemo}
+              setMemoList={setMemoList}
+            />
+          </Suspense>
         )}
       </div>
     </div>
