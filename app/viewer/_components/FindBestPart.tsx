@@ -1,7 +1,7 @@
 import { normalizeName } from "./NormalizeName";
 import { scoreMatch } from "./ScoreMatch";
 
-type HasMesh = { mesh: string };
+type HasMesh = { mesh?: string };
 
 export function findBestPart<T extends HasMesh>(
   items: readonly T[] | undefined,
@@ -15,7 +15,7 @@ export function findBestPart<T extends HasMesh>(
   let bestScore = 0;
 
   for (const p of items) {
-    const key = normalizeName(p.mesh);
+    const key = normalizeName(p.mesh || "");
     const sc = scoreMatch(sel, key);
     if (sc > bestScore) {
       bestScore = sc;

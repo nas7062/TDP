@@ -78,3 +78,8 @@ type GradeRule = {
   minSolved: number;
   maxSolved?: number | null;
 };
+
+type MemoContent = {
+  idx: number;
+  memo: string;
+};

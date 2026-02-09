@@ -2,6 +2,7 @@ import { deleteChat, searchChat } from "@/lib/api/aiAssistant";
 import { deleteMemo, searchMemo } from "@/lib/api/memo";
 import useDebounce from "@/lib/hook/useDebounce";
 import { highlightKeyword } from "@/lib/util/highlightKeyword";
+import { ChatContent } from "@/types/api";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";

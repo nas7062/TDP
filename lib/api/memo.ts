@@ -1,3 +1,14 @@
+import {
+  MemoDeleteRequest,
+  MemoListRequest,
+  MemoListResponse,
+  MemoRequest,
+  MemoResponse,
+  MemoSearchRequest,
+  MemoSearchResponse,
+  MemoUpdateRequest
+} from "@/types/api";
+
 export async function getMemoList({
   userIdx,
   modelIdx

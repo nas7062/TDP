@@ -1,3 +1,5 @@
+import { ChatRequest } from "@/types/api";
+
 /** SSE 스트림 옵션: 첫 이벤트 roomId 수신 시 콜백, 이후 delta(data)마다 onChunk 호출 */
 type SendChatStreamOptions = {
   onChunk: (chunk: string) => void;

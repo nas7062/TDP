@@ -48,10 +48,6 @@ type MemoListResponse = {
   totalCount: number;
   contents: MemoContent[];
 };
-type MemoContent = {
-  idx: number;
-  memo: string;
-};
 
 type MemoRequest = {
   userIdx: number;
