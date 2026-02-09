@@ -4,9 +4,9 @@ import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { PartListMock } from "@/constant";
-
 import { fetchModelByIdx } from "@/lib/api/model";
 import dynamic from "next/dynamic";
+import { findBestPart } from "./FindBestPart";
 
 const ThreeView = dynamic(() => import("@/components/ThreeView/ThreeView"), {
   ssr: false,
@@ -63,17 +63,17 @@ export default function ViewerClient() {
     };
     fetchModel();
   }, [modelIdx, user?.idx]);
-  console.log(model);
+
   useEffect(() => {
     if (!selectedName) {
       setSelectedPart(null);
       setIsDetail(false);
       return;
     }
+    const part = findBestPart<IModelParts>(model?.items, selectedName);
 
-    const part = model?.items.find((p) => p.name === selectedName) ?? null;
     setSelectedPart(part);
-    setIsDetail(!!part);
+    setIsDetail(Boolean(part));
   }, [selectedName, model?.items]);
   return (
     <div className="flex w-screen h-screen px-2">

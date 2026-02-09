@@ -30,7 +30,7 @@ interface Props {
 }
 
 export default function ThreeView({ setSelectedName, selectedName, user, modelIdx, model }: Props) {
-  const [modelPath] = useState("/models/Drone3.glb");
+  const [modelPath] = useState("/models/Engine5.glb");
   const [isMoveCamera, setIsMoveCamera] = useState(false);
   // 모델 분해 상태
   const [explode, setExplode] = useState(0);
