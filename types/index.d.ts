@@ -9,7 +9,7 @@ interface IPart {
 interface IUser {
   idx: number;
   userId: string;
-};
+}
 
 interface ICategoryItem {
   idx: number;
@@ -20,8 +20,7 @@ interface ICategoryItem {
 interface ICategory {
   totalCount: number;
   contents: ICategoryItem[];
-};
-
+}
 
 interface IModelParts {
   idx: number;
@@ -38,20 +37,20 @@ interface IModelDetail {
   asset: string;
   meta: string;
   description: string;
-  items: IModelParts[]
+  items: IModelParts[];
 }
 
-
-type AxisType = 'Center' | 'X' | 'Y' | 'Z'
+type AxisType = "Center" | "X" | "Y" | "Z";
 
 type TabType = "기계공학" | "생명공학" | "의공학";
+
+type ViewPreset = "TOP" | "BOTTOM" | "LEFT" | "RIGHT" | "FRONT" | "BACK";
 
 // 우측패널
 
 type RightPannelUIType = "default" | "expanded" | "full"; // 기본 상태 / 아래위로 열린 상태 / 왼쪽패널도 있는 상태
 type RightPannelContentType = "AI 어시스턴스" | "메모장";
 type RightPannelSideContentType = "history" | "search"; // 기록 / 검색창
-
 
 type ViewerState = {
   modelPath: string;
@@ -70,5 +69,5 @@ type ViewerState = {
     target: [number, number, number];
   };
 
-  updatedAt: string; 
+  updatedAt: string;
 };
