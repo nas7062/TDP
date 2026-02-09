@@ -1,6 +1,6 @@
 export function normalizeName(s: string) {
   return s
     .toLowerCase()
-    .replace(/[\s_-]+/g, "")
-    .replace(/\d+/g, "");
+    .replace(/([._-])\d+$/g, "")
+    .replace(/[\s_.-]+/g, "");
 }

@@ -158,3 +158,10 @@ export const FALLBACK_GRADES: GradeRule[] = [
   { grade: "테크니션", minSolved: 16, maxSolved: 30 },
   { grade: "입문 지망생", minSolved: 0, maxSolved: 15 }
 ];
+
+export const MODEL_PATH_BY_IDX: Record<number, string> = {
+  7: "/models/Drone4.glb",
+  8: "/models/RobotArm3.glb",
+  9: "/models/Engine5.glb",
+  10: "/models/RobotGripper6.glb"
+};

@@ -7,6 +7,7 @@ import {
   Suspense,
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState
 } from "react";
@@ -17,7 +18,7 @@ import { Model } from "./ModelLoader";
 import ActionButton from "../ActionButton";
 import { ExplodeModal } from "../ExplodeModal";
 import { useRouter } from "next/navigation";
-import { parseSnapshot } from "@/constant";
+import { MODEL_PATH_BY_IDX, parseSnapshot } from "@/constant";
 import { CameraApplier } from "./CameraApplier";
 import ViewButtons from "../ViewButtons";
 
@@ -28,9 +29,12 @@ interface Props {
   modelIdx: number;
   model: IModelDetail | null;
 }
+function getModelPath(modelIdx: number) {
+  return MODEL_PATH_BY_IDX[modelIdx] ?? "/models/Engine5.glb";
+}
 
 export default function ThreeView({ setSelectedName, selectedName, user, modelIdx, model }: Props) {
-  const [modelPath] = useState("/models/Engine5.glb");
+  const modelPath = useMemo(() => getModelPath(modelIdx), [modelIdx]);
   const [isMoveCamera, setIsMoveCamera] = useState(false);
   // 모델 분해 상태
   const [explode, setExplode] = useState(0);
