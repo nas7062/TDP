@@ -1,13 +1,11 @@
 "use client";
 
 import AnswerCircle from "@/components/LearningData/AnswerCircle";
-import { Grade } from "@/components/LearningData/Grade";
+import GradeCard from "@/components/LearningData/GradeCard";
 import ModelCircle from "@/components/LearningData/ModelCircle";
-import Popover from "@/components/LearningData/Popover";
-import { StepProgressBar } from "@/components/LearningData/StepProgressBar";
-import { CHIP_LEVEL_CONFIG, FALLBACK_GRADES } from "@/constant";
+import QuizHistoryPanel from "@/components/LearningData/QuizPanel";
 import { fetchUserQuizMe } from "@/lib/api/quiz";
-import Image from "next/image";
+import { UserQuizMeResponse } from "@/types/api";
 import { useEffect, useState } from "react";
 
 export default function LearningDataPage() {
@@ -65,6 +63,7 @@ export default function LearningDataPage() {
     );
   }
 
+  console.log(data);
   return (
     <div className="bg-[url('/images/BlueBackground.png')] bg-[length:100%_50%] bg-no-repeat bg-top mt-[-64px] w-screen min-h-screen">
       <div className="flex flex-col gap-3">
@@ -107,81 +106,48 @@ export default function LearningDataPage() {
           </div>
         </div>
 
-        {/* 등급 카드 */}
-        <div className="bg-gray-100 w-4xl mx-auto p-4 rounded-lg flex flex-col gap-2">
-          <div className="flex justify-between items-center">
-            <p className="font-semibold">등급 달성률</p>
+        {selectedTab === 0 ? (
+          <>
+            <GradeCard data={data} />
 
-            <Popover
-              trigger={
-                <Image
-                  src="/icons/Info.svg"
-                  alt="등급안내 아이콘"
-                  width={20}
-                  height={20}
-                  className="cursor-pointer"
-                />
-              }
-            >
-              <Grade
-                grades={FALLBACK_GRADES}
-                currentGrade={data.currentGrade}
-                CHIP_LEVEL_CONFIG={CHIP_LEVEL_CONFIG}
-              />
-            </Popover>
-          </div>
+            <div className="w-4xl mx-auto grid grid-cols-1 gap-4 md:grid-cols-[1fr_360px]">
+              <div className="rounded-xl bg-gray-100 p-4">
+                <p className="mb-3 text-sm font-semibold text-gray-700">종합 분석 결과</p>
 
-          <p className="text-center">
-            {data.problemsToNextGrade > 0
-              ? `${data.problemsToNextGrade}문제 남았어요. 힘내보세요!`
-              : "다음 등급 조건을 달성했습니다."}
-          </p>
-
-          <StepProgressBar
-            steps={[
-              "입문 지망생",
-              "테크니션",
-              "매커닉",
-              "전문 기술자",
-              "수석 설계자",
-              "마스터 엔지니어"
-            ]}
-            solvedCount={data.totalSolved}
-          />
-        </div>
-
-        {/* 분석 섹션 */}
-        <div className="w-4xl mx-auto grid grid-cols-1 gap-4 md:grid-cols-[1fr_360px]">
-          <div className="rounded-xl bg-gray-100 p-4">
-            <p className="mb-3 text-sm font-semibold text-gray-700">종합 분석 결과</p>
-
-            <div className="flex flex-wrap items-center justify-start gap-6">
-              {data.modelStats?.length ? (
-                data.modelStats.map((m) => (
-                  <ModelCircle
-                    key={m.modelIdx}
-                    label={`Model ${m.modelIdx}`}
-                    correct={m.correct}
-                    wrong={m.wrong}
-                  />
-                ))
-              ) : (
-                <div className="text-sm text-gray-500 w-full text-center py-10">
-                  분석 결과가 없습니다.
+                <div className="flex flex-wrap items-center justify-start gap-6">
+                  {data.modelStats?.length ? (
+                    data.modelStats.map((m) => (
+                      <ModelCircle
+                        key={m.modelIdx}
+                        label={`Model ${m.modelIdx}`}
+                        correct={m.correct}
+                        wrong={m.wrong}
+                      />
+                    ))
+                  ) : (
+                    <div className="text-sm text-gray-500 w-full text-center py-10">
+                      분석 결과가 없습니다.
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
-          </div>
+              </div>
 
-          <div className="rounded-xl bg-gray-100 p-4">
-            <p className="mb-3 text-sm font-semibold text-gray-700">정답과 오답</p>
-            <AnswerCircle
-              correct={data.totalCorrect}
-              solved={data.totalSolved}
-              wrong={data.totalWrong}
-            />
-          </div>
-        </div>
+              <div className="rounded-xl bg-gray-100 p-4">
+                <p className="mb-3 text-sm font-semibold text-gray-700">정답과 오답</p>
+                <AnswerCircle
+                  correct={data.totalCorrect}
+                  solved={data.totalSolved}
+                  wrong={data.totalWrong}
+                />
+              </div>
+            </div>
+          </>
+        ) : (
+          <QuizHistoryPanel
+            userIdx={user!.idx}
+            modelIdxList={data.modelStats?.map((m) => m.modelIdx) ?? []}
+          />
+        )}
       </div>
     </div>
   );

@@ -72,22 +72,6 @@ type ViewerState = {
   updatedAt: string;
 };
 
-type ModelStat = {
-  modelIdx: number;
-  solved: number;
-  correct: number;
-  wrong: number;
-};
-
-type UserQuizMeResponse = {
-  currentGrade: string;
-  nextGrade: string;
-  problemsToNextGrade: number;
-  totalSolved: number;
-  totalCorrect: number;
-  totalWrong: number;
-  modelStats: ModelStat[];
-};
 type GradeRule = {
   grade: string;
   minSolved: number;
