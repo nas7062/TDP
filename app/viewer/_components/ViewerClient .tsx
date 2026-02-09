@@ -63,7 +63,7 @@ export default function ViewerClient() {
     };
     fetchModel();
   }, [modelIdx, user?.idx]);
-
+  console.log(model);
   useEffect(() => {
     if (!selectedName) {
       setSelectedPart(null);
