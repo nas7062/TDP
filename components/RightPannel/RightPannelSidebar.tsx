@@ -1,4 +1,4 @@
-import { searchChat } from "@/lib/api/aiAssistant";
+import { deleteChat, searchChat } from "@/lib/api/aiAssistant";
 import { deleteMemo, searchMemo } from "@/lib/api/memo";
 import useDebounce from "@/lib/hook/useDebounce";
 import { highlightKeyword } from "@/lib/util/highlightKeyword";
@@ -11,12 +11,13 @@ type Props = {
   setUiType: Dispatch<SetStateAction<RightPannelUIType>>;
   contentType: RightPannelContentType;
   chatList?: ChatContent[];
+  setChatList: Dispatch<SetStateAction<ChatContent[]>>;
   roomId?: string;
   setRoomId: Dispatch<SetStateAction<string>>;
   sideContentType: RightPannelSideContentType;
   setSideContentType: Dispatch<SetStateAction<RightPannelSideContentType>>;
   memoList?: MemoContent[];
-  setMemoList?: Dispatch<SetStateAction<MemoContent[]>>;
+  setMemoList: Dispatch<SetStateAction<MemoContent[]>>;
   memoIdx?: number | null;
   setMemoIdx: Dispatch<SetStateAction<number | null>>;
 };
@@ -29,6 +30,7 @@ export default function RightPannelSidebar({
   setSideContentType,
   contentType, //UI 관련
   chatList,
+  setChatList,
   roomId,
   setRoomId,
   memoList,
@@ -115,9 +117,12 @@ export default function RightPannelSidebar({
     setSearchMemoList((prev) => prev.filter((m) => m.idx !== selectedMemoIdx));
   };
 
-  // TODO: 채팅 삭제 api 추가 및 연동 필요
-  const onClickChatDeleteBtn = (roomId: string) => {
-    // deleteChat({ userIdx: Number(userIdx), modelIdx: Number(modelIdx), roomId });
+  const onClickChatDeleteBtn = (selectedRoomId: string) => {
+    deleteChat({ roomId: selectedRoomId });
+    if (roomId === selectedRoomId) setRoomId("");
+
+    setChatList?.((prev) => prev.filter((c) => c.roomId !== selectedRoomId));
+    setSearchChatList((prev) => prev.filter((c) => c.roomId !== selectedRoomId));
   };
 
   return (
@@ -169,11 +174,11 @@ export default function RightPannelSidebar({
               <li
                 key={item.roomId}
                 onClick={() => setRoomId(item.roomId)}
-                className={`group cursor-pointer ${roomId === item.roomId ? "bg-gray-100" : ""} px-2.5 leading-[38px] mr-4 rounded-lg hover:bg-gray-50`}
+                className={`group cursor-pointer ${roomId === item.roomId ? "bg-gray-100" : ""} px-2.5 leading-[38px] mr-4 rounded-lg hover:bg-gray-50 relative`}
               >
                 <p className={`group-hover:max-w-[120px] max-w-[155px] truncate h-[38px] `}>
                   {sideContentType === "search" && debouncedInputValue.trim()
-                    ? highlightKeyword(item.messages?.[0]?.message ?? "", debouncedInputValue)
+                    ? highlightKeyword(item.snippet ?? "", debouncedInputValue)
                     : item.messages?.[0]?.message}
                 </p>
                 <button

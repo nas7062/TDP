@@ -84,7 +84,7 @@ export async function deleteMemo({ userIdx, modelIdx, memoIdx }: MemoDeleteReque
     body && typeof body === "object" && "message" in body
       ? (body as { message: string }).message
       : undefined;
-  throw new Error(errMessage || "메모 생성 실패");
+  throw new Error(errMessage || "메모 삭제 실패");
 }
 
 export async function searchMemo({

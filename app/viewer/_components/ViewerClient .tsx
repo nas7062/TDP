@@ -24,6 +24,7 @@ export default function ViewerClient() {
     setIsMenu(!isMenu);
     setIsDetail(false);
   };
+
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user") ?? "{}");
     setUser(user);
@@ -56,7 +57,6 @@ export default function ViewerClient() {
     setSelectedPart(part);
     setIsDetail(!!part);
   }, [selectedName, model?.items]);
-
   return (
     <div className="flex w-screen h-screen px-2">
       <div className="absolute top-20 left-4 w-96 z-1">
@@ -93,7 +93,13 @@ export default function ViewerClient() {
         </div>
       </div>
       <div className="flex-1 ">
-        <ThreeView setSelectedName={setSelectedName} selectedName={selectedName} />
+        <ThreeView
+          setSelectedName={setSelectedName}
+          selectedName={selectedName}
+          user={user}
+          modelIdx={modelIdx}
+          model={model}
+        />
       </div>
       <RightPannel />
     </div>

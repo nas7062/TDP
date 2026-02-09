@@ -1,5 +1,6 @@
 "use client";
 
+import { setUserAuth } from "@/lib/auth";
 import { createUser, fetchUser } from "@/lib/api/user";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -10,6 +11,7 @@ export default function Page() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+
   const onSubmit = async () => {
     if (!userId) return;
     setLoading(true);
@@ -21,7 +23,7 @@ export default function Page() {
         userId: user.userId,
         idx: user.idx
       };
-      localStorage.setItem("user", JSON.stringify(userInfo));
+      setUserAuth(userInfo);
       router.replace("/select");
       return;
     } catch (error) {
@@ -35,7 +37,7 @@ export default function Page() {
             userId: user.userId,
             idx: user.idx
           };
-          localStorage.setItem("user", JSON.stringify(userInfo));
+          setUserAuth(userInfo);
           router.replace("/select");
           return;
         }
