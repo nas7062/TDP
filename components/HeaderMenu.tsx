@@ -152,11 +152,11 @@ export function HeaderMenu({ onLogout }: HeaderMenuProps) {
 
       {toastVisible && (
         <div
-          className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[100] px-4 py-2.5 rounded-lg bg-gray-800 text-white text-sm font-medium shadow-lg animate-in fade-in duration-200"
+          className="fixed top-8 left-1/2 -translate-x-1/2 z-[100] px-4 py-2.5 rounded-lg bg-gray-700 text-white text-sm font-medium shadow-lg animate-in fade-in duration-200"
           role="status"
           aria-live="polite"
         >
-          개발 중입니다
+          열심히 만들고 있어요! 곧 오픈됩니다 🚧
         </div>
       )}
     </>

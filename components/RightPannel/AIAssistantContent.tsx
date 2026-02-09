@@ -2,9 +2,10 @@
 
 import Image from "next/image";
 import { useRef, useState, useEffect, Dispatch, SetStateAction } from "react";
-import { sendChat } from "@/lib/api/aiAssistant";
 import { randomUUID } from "@/lib/util/uuid";
 import { useSearchParams } from "next/navigation";
+import { sendChatStream } from "@/lib/api/sseAiChat";
+import { TextSkeleton } from "@/components/ui/skeleton";
 
 type Props = {
   uiType: RightPannelUIType;
@@ -21,7 +22,6 @@ const MAX_LINES = 3;
 const MIN_HEIGHT = LINE_HEIGHT + PADDING_Y; // 1줄
 const MAX_HEIGHT = LINE_HEIGHT * MAX_LINES + PADDING_Y; // 3줄
 
-// TODO: SSE 연결로 변경 로딩이 너무 오래 걸림
 export default function AIAssistantContent({
   uiType,
   setUiType,
@@ -39,6 +39,7 @@ export default function AIAssistantContent({
   const [inputValue, setInputValue] = useState("");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isFetching, setIsFetching] = useState(false);
+  const [isShowSkeleton, setIsShowSkeleton] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
 
@@ -90,14 +91,14 @@ export default function AIAssistantContent({
     setIsFetching(true);
     setInputValue("");
     setMessages((prev) => [...prev, userMessage]);
+    setIsShowSkeleton(true);
 
     try {
       const newRoomId = roomId ? roomId : randomUUID();
       const isNewChat = !roomId;
 
+      // 새 채팅 시작 시 chatList에 추가 (처음에)
       if (isNewChat) {
-        setRoomId(newRoomId);
-        // 새 채팅 시작 시 chatList에 추가
         const newChat: ChatContent = {
           roomId: newRoomId,
           createDate: new Date().toISOString(),
@@ -106,24 +107,60 @@ export default function AIAssistantContent({
         setChatList((prev) => [newChat, ...prev]);
       }
 
-      const res = await sendChat({
-        userIdx: Number(userIdx),
-        message: messageText,
-        roomId: newRoomId,
-        modelIdx
-      });
+      // 스트리밍용 빈 응답 메시지 먼저 추가
+      setMessages((prev) => [...prev, { type: "RESPONSE", message: "" }]);
+
+      const roomIdRef = { current: newRoomId };
+      const fullMessage = await sendChatStream(
+        {
+          userIdx: Number(userIdx),
+          message: messageText,
+          roomId: newRoomId,
+          modelIdx
+        },
+        {
+          onChunk(chunk) {
+            setIsShowSkeleton(false);
+            console.log("chunk in client - onChunk", chunk);
+            setMessages((prev) => {
+              const next = [...prev];
+              const last = next[next.length - 1];
+              if (last?.type === "RESPONSE") {
+                next[next.length - 1] = { ...last, message: last.message + chunk };
+              }
+              return next;
+            });
+          },
+          onRoomId(serverRoomId) {
+            console.log("serverRoomId in client - onRoomId", serverRoomId);
+            roomIdRef.current = serverRoomId;
+            setRoomId(serverRoomId);
+            if (isNewChat) {
+              setChatList((prev) =>
+                prev.map((c) => (c.roomId === newRoomId ? { ...c, roomId: serverRoomId } : c))
+              );
+            }
+          }
+        }
+      );
 
       const assistantMessage: ChatMessage = {
         type: "RESPONSE",
-        message: res.message
+        message: fullMessage
       };
-      setMessages((prev) => [...prev, assistantMessage]);
 
-      // 기존 채팅인 경우 chatList의 메시지도 업데이트
+      // 최종 메시지로 한 번 더 반영 (스트림 파싱 차이 보정)
+      setMessages((prev) => {
+        const next = [...prev];
+        next[next.length - 1] = assistantMessage;
+        return next;
+      });
+
+      const effectiveRoomId = roomIdRef.current;
       if (!isNewChat) {
         setChatList((prev) =>
           prev.map((chat) =>
-            chat.roomId === newRoomId
+            chat.roomId === effectiveRoomId
               ? {
                   ...chat,
                   messages: [...chat.messages, userMessage, assistantMessage]
@@ -132,10 +169,9 @@ export default function AIAssistantContent({
           )
         );
       } else {
-        // 새 채팅인 경우 응답 메시지도 추가
         setChatList((prev) =>
           prev.map((chat) =>
-            chat.roomId === newRoomId
+            chat.roomId === effectiveRoomId
               ? {
                   ...chat,
                   messages: [...chat.messages, assistantMessage]
@@ -148,6 +184,7 @@ export default function AIAssistantContent({
       // 에러 시 사용자 메시지 유지 (필요하면 토스트 등 처리)
     } finally {
       setIsFetching(false);
+      setIsShowSkeleton(false);
     }
   };
 
@@ -174,22 +211,31 @@ export default function AIAssistantContent({
       {uiType !== "default" && (
         <div ref={messagesContainerRef} className="flex-1 min-h-0 overflow-y-auto space-y-3 pr-1 ">
           {messages && messages.length > 0 ? (
-            messages.map((msg, i) => (
-              <div
-                key={i}
-                className={`flex ${msg.type === "REQUEST" ? "justify-end" : "justify-start"}`}
-              >
+            <>
+              {messages.map((msg, i) => (
                 <div
-                  className={`rounded-2xl px-4 py-2.5 text-[15px] font-medium leading-relaxed whitespace-pre-line ${
-                    msg.type === "REQUEST"
-                      ? "max-w-[85%] bg-gray-200 text-gray-800 rounded-tr-none"
-                      : "max-w-[90%] bg-white text-gray-800"
-                  }`}
+                  key={i}
+                  className={`flex ${msg.type === "REQUEST" ? "justify-end" : "justify-start"}`}
                 >
-                  {msg.message}
+                  <div
+                    className={`rounded-2xl px-4 py-2.5 text-[15px] font-medium leading-relaxed whitespace-pre-line ${
+                      msg.type === "REQUEST"
+                        ? "max-w-[85%] bg-gray-200 text-gray-800 rounded-tr-none"
+                        : "max-w-[90%] bg-white text-gray-800"
+                    }`}
+                  >
+                    {msg.message}
+                  </div>
                 </div>
-              </div>
-            ))
+              ))}
+              {isShowSkeleton && (
+                <div className="flex justify-start">
+                  <div className="rounded-2xl px-4 py-2.5 w-[90%] bg-white text-gray-800">
+                    <TextSkeleton lines={3} className="min-w-[120px]" />
+                  </div>
+                </div>
+              )}
+            </>
           ) : (
             <div className="flex items-center justify-center h-full">
               <p className="text-gray-400 text-[16px]">궁금한 점을 물어보세요.</p>
