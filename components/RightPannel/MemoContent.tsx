@@ -30,7 +30,7 @@ export default function MemoContent({
   const modelIdx = searchParams.get("modelIdx") ? parseInt(searchParams.get("modelIdx")!) : 0;
 
   const [inputValue, setInputValue] = useState("");
-  const debouncedInputValue = useDebounce(inputValue, 500);
+  const debouncedInputValue = useDebounce(inputValue, 300);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   // selectedMemo가 변경되면 inputValue 업데이트

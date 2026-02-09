@@ -21,10 +21,11 @@ export function HeaderMenu({ onLogout }: HeaderMenuProps) {
   const router = useRouter();
   const pathname = usePathname();
   const isHome = pathname === "/";
+  const isViewerPage = pathname === "/viewer";
   const searchParams = useSearchParams();
   const modelIdx = parseInt(searchParams.get("modelIdx") ?? "");
 
-  const topItems = isHome
+  const topItems = !isViewerPage
     ? MENU_TOP_ITEMS.filter((item) => item.label !== "PDF 내보내기")
     : [...MENU_TOP_ITEMS];
   const bottomItems = isHome
