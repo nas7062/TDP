@@ -49,19 +49,18 @@ export async function sendChat({
   throw new Error(errMessage || "채팅 전송 실패");
 }
 
-// TODO: 안에 내용이랑 파람 다 수정 필요
 export async function searchChat({
   userIdx,
   keyword,
   modelIdx
-}: MemoSearchRequest): Promise<ChatListResponse> {
-  const res = await fetch(`/proxy/model/${modelIdx}/user/${userIdx}/memo/search`, {
-    method: "PUT",
+}: ChatSearchRequest): Promise<ChatListResponse> {
+  const res = await fetch(`/proxy/api/v1/ai/chat/search`, {
+    method: "POST",
     headers: {
       Accept: "application/json",
       "Content-Type": "application/json"
     },
-    body: JSON.stringify({ keyword })
+    body: JSON.stringify({ modelIdx, userIdx, keyword })
   });
 
   const body = await res.json().catch(() => null);
@@ -71,5 +70,23 @@ export async function searchChat({
     body && typeof body === "object" && "message" in body
       ? (body as { message: string }).message
       : undefined;
-  throw new Error(errMessage || "메모 생성 실패");
+  throw new Error(errMessage || "채팅 검색 실패");
+}
+
+export async function deleteChat({ roomId }: ChatDeleteRequest): Promise<void> {
+  const res = await fetch(`/proxy/api/v1/ai/chat?roomId=${roomId}`, {
+    method: "DELETE",
+    headers: {
+      Accept: "application/json"
+    }
+  });
+
+  const body = await res.json().catch(() => null);
+  if (res.ok) return;
+
+  const errMessage =
+    body && typeof body === "object" && "message" in body
+      ? (body as { message: string }).message
+      : undefined;
+  throw new Error(errMessage || "채팅 삭제 실패");
 }

@@ -21,6 +21,7 @@ type ChatListResponse = {
 type ChatContent = {
   roomId: string;
   createDate: string;
+  snippet?: string;
   messages: ChatMessage[];
 };
 
@@ -28,6 +29,14 @@ type ChatMessage = {
   type: "REQUEST" | "RESPONSE";
   message: string;
   createDate?: string;
+};
+type ChatDeleteRequest = {
+  roomId: string;
+};
+type ChatSearchRequest = {
+  userIdx: number;
+  modelIdx: number;
+  keyword: string;
 };
 
 // memo api

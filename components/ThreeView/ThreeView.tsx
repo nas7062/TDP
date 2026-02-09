@@ -35,7 +35,9 @@ export default function ThreeView({ setSelectedName, selectedName, user, modelId
   const originalColors = useRef<Map<string, THREE.Color>>(new Map());
   const [resetKey, setResetKey] = useState(0);
   const [axis, setAxis] = useState<AxisType>("Center");
-
+  const [modelReady, setModelReady] = useState(false);
+  const [readyVersion, setReadyVersion] = useState(0);
+  const appliedVersionRef = useRef(0);
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
   const controlsRef = useRef<ThreeOrbitControls | null>(null);
   const router = useRouter();
@@ -171,25 +173,32 @@ export default function ThreeView({ setSelectedName, selectedName, user, modelId
 
   useEffect(() => {
     if (!model?.meta) return;
+    if (!modelReady) return;
+
+    // ✅ 같은 ready에 대해 중복 적용 방지
+    if (appliedVersionRef.current === readyVersion) return;
+    appliedVersionRef.current = readyVersion;
+
     const snap = parseSnapshot(model.meta);
     if (!snap) return;
 
+    // 리셋 트리거
     setExplode(0);
     setSelectedName(null);
     setAxis("Center");
     setLevel(1);
-
-    //  메쉬를 원본 위치로 강제 복귀시키는 트리거
     setResetKey((k) => k + 1);
 
-    // 프레임에 스냅샷 적용
+    // ✅ 리셋 effect가 먼저 먹고난 뒤 적용 (2프레임 권장)
     requestAnimationFrame(() => {
-      setExplode(snap.explode);
-      setSelectedName(snap.selectedName);
-      setAxis(snap.axis);
-      setLevel(snap.level);
+      requestAnimationFrame(() => {
+        setExplode(snap.explode);
+        setSelectedName(snap.selectedName);
+        setAxis(snap.axis);
+        setLevel(snap.level);
+      });
     });
-  }, [model?.meta, setSelectedName]);
+  }, [readyVersion, modelReady, model?.meta, setSelectedName]);
 
   return (
     <div className="w-full h-full relative bg-gray-100">
@@ -225,6 +234,10 @@ export default function ThreeView({ setSelectedName, selectedName, user, modelId
             level={level}
             axis={axis}
             resetKey={resetKey}
+            onReady={() => {
+              setModelReady(true);
+              setReadyVersion((v) => v + 1);
+            }}
           />
         </Suspense>
       </Canvas>
