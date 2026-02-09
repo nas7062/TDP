@@ -5,9 +5,12 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { HeaderMenu } from "./HeaderMenu";
 import { Chip } from "./ui/chip";
+import QuizButton from "./QuizButton/QuizButton";
+import { usePathname } from "next/navigation";
 
 export default function Header() {
   const [user, setUser] = useState<IUser | null>(null);
+  const pathname = usePathname();
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user") ?? "{}");
@@ -36,7 +39,10 @@ export default function Header() {
           </div>
         )}
       </div>
-      <HeaderMenu onLogout={() => setUser(null)} />
+      <div className="flex items-center gap-[20px]">
+        {pathname === "/viewer" && <QuizButton />}
+        <HeaderMenu onLogout={() => setUser(null)} />
+      </div>
     </header>
   );
 }
