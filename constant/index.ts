@@ -100,6 +100,15 @@ export const AXIS_OPTIONS: { label: string; value: AxisType }[] = [
   { label: "Z축", value: "Z" }
 ];
 
+
+export function parseSnapshot(meta: string): ViewerState | null {
+  try {
+    return JSON.parse(meta) as ViewerState;
+  } catch {
+    return null;
+  }
+}
+
 export const CHIP_LEVEL_CONFIG = {
   6: {
     label: "마스터 엔지니어",
@@ -139,3 +148,4 @@ export const MENU_BOTTOM_ITEMS = [
   { label: "홈화면", icon: "/icons/Home.svg", href: "/select" },
   { label: "로그아웃", icon: "/icons/Logout.svg", isLogout: true }
 ] as const;
+

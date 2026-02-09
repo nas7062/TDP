@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { useGLTF } from "@react-three/drei";
-
+import { SkeletonUtils } from "three-stdlib";
 type Props = {
   modelPath: string;
   explode: number;
@@ -14,13 +14,8 @@ type Props = {
   resetKey: number;
   level: number;
   axis: AxisType;
+  onReady?: () => void;
 };
-
-function hasColor(
-  material: THREE.Material
-): material is THREE.MeshStandardMaterial | THREE.MeshBasicMaterial | THREE.MeshPhongMaterial {
-  return "color" in material;
-}
 
 export function Model({
   modelPath,
@@ -31,132 +26,161 @@ export function Model({
   originalPositions,
   resetKey,
   level,
-  axis
+  axis,
+  onReady
 }: Props) {
   const gltf = useGLTF(modelPath);
-  const root = gltf.scene;
-  // 메쉬 목록 캐시
+  // 캐시된 gltf.scene을 직접 쓰지 않고 clone해서 사용
+  const root = useMemo(() => SkeletonUtils.clone(gltf.scene) as THREE.Group, [gltf.scene]);
+  //모델 전체 중심 좌표 저장용
+  const modelCenter = useRef<THREE.Vector3 | null>(null);
+  //explode 대상 메쉬 목록 생성
   const meshes = useMemo(() => {
     const list: THREE.Mesh[] = [];
     root.traverse((o) => {
-      if (o instanceof THREE.Mesh) list.push(o);
-      console.log({
-        meshName: o.name,
-        parentName: o.parent?.name
-      });
+      if (!(o instanceof THREE.Mesh)) return;
+
+      if (o.parent instanceof THREE.Mesh) return;
+
+      list.push(o);
     });
     return list;
   }, [root]);
-  console.log(meshes);
-  const isBlocked = (name: string) => {
-    const n = name.toLowerCase();
-    return n.includes("솔리드") || n.includes("solid");
-  };
-  //  material clone + 원래 색/위치 저장
+  // 초기화가 한 번만 수행되도록 제어 Ref
   const inited = useRef(false);
+
+  // model 바뀌면  이전 모델의 원본 데이터를 전부 비우고 다시 생성하도록
+  useEffect(() => {
+    inited.current = false;
+    originalPositions.current.clear();
+    originalColors.current.clear();
+    modelCenter.current = null;
+  }, [modelPath, root, originalColors, originalPositions]);
+
+  // 원본 캡처
   useEffect(() => {
     if (inited.current) return;
-    inited.current = true;
+    if (!meshes.length) return;
+
+    root.scale.set(5, 5, 5);
+    root.updateMatrixWorld(true);
+
+    const box = new THREE.Box3().setFromObject(root);
+    const center = new THREE.Vector3();
+    box.getCenter(center);
+    modelCenter.current = center;
 
     for (const mesh of meshes) {
-      // material을 독립적으로 (색 바꿔도 공유 안 하게)
-      if (Array.isArray(mesh.material)) {
-        mesh.material = mesh.material.map((m) => m.clone());
-      } else {
-        mesh.material = mesh.material.clone();
-      }
+      mesh.material = Array.isArray(mesh.material)
+        ? mesh.material.map((m) => m.clone())
+        : mesh.material.clone();
 
-      // 원래 색상 저장 (MeshStandard/Basic만 대상으로)
       const saveColor = (m: THREE.Material) => {
-        if (hasColor(m)) {
-          originalColors.current.set(mesh.uuid, m.color.clone());
-        }
+        if ("color" in m) originalColors.current.set(mesh.uuid, (m as any).color.clone());
       };
-
       if (Array.isArray(mesh.material)) mesh.material.forEach(saveColor);
       else saveColor(mesh.material);
 
-      // 원래 위치 저장
       originalPositions.current.set(mesh.uuid, mesh.position.clone());
     }
-  }, [meshes, originalColors, originalPositions]);
 
-  // explode 적용 + 선택 하이라이트/복원
-  useEffect(() => {
-    for (const mesh of meshes) {
-      //  원래 위치 기준으로 이동
-      const base = originalPositions.current.get(mesh.uuid);
-      if (base) {
-        const dir = base.clone().normalize();
-        const dist = explode * 0.1 * level;
-        if (dir.lengthSq() === 0) dir.set(0, 1, 0);
-        switch (axis) {
-          case "Center": {
-            mesh.position.copy(base.clone().add(dir.multiplyScalar(dist)));
-            break;
-          }
-          case "X": {
-            dir.set(1, 0, 0);
-            mesh.position.copy(base.clone().add(dir.multiplyScalar(dist)));
-            break;
-          }
-          case "Y": {
-            dir.set(0, 1, 0);
-            mesh.position.copy(base.clone().add(dir.multiplyScalar(dist)));
-            break;
-          }
-          case "Z": {
-            dir.set(0, 0, 1);
-            mesh.position.copy(base.clone().add(dir.multiplyScalar(dist)));
-            break;
-          }
-        }
-      }
+    inited.current = true; // ✅ 마지막에 true
 
-      // 선택된 메쉬만 빨간색, 나머지는 원래 색
-      const applyColor = (m: THREE.Material, color: THREE.Color) => {
-        if (hasColor(m)) m.color.copy(color);
-      };
-
-      const orig = originalColors.current.get(mesh.uuid);
-      if (!orig) continue;
-
-      const target = mesh.name === selectedName ? new THREE.Color(0xff0000) : orig;
-
-      if (Array.isArray(mesh.material)) mesh.material.forEach((m) => applyColor(m, target));
-      else applyColor(mesh.material, target);
+    const n = originalPositions.current.size;
+    if (n > 0) {
+      console.log("ORIGINAL CAPTURED", n);
+      onReady?.();
     }
-  }, [explode, selectedName, meshes, originalPositions, originalColors, axis, level]);
+  }, [root, meshes, modelPath, onReady, originalPositions, originalColors]);
 
-  // reset
+  // Reset 처리
   useEffect(() => {
     for (const mesh of meshes) {
-      const p = originalPositions.current.get(mesh.uuid);
-      if (p) mesh.position.copy(p);
+      const baseLocal = originalPositions.current.get(mesh.uuid);
+      if (!baseLocal) continue;
 
-      const c = originalColors.current.get(mesh.uuid);
-      if (!c) continue;
+      mesh.position.copy(baseLocal);
 
+      const origColor = originalColors.current.get(mesh.uuid);
+      if (origColor) {
+        const apply = (m: THREE.Material) => {
+          if ("color" in m) (m as any).color.copy(origColor);
+        };
+        if (Array.isArray(mesh.material)) mesh.material.forEach(apply);
+        else apply(mesh.material);
+      }
+    }
+
+    root.updateMatrixWorld(true);
+  }, [resetKey, meshes, root, originalPositions, originalColors]);
+
+  //  explode: baseLocal -> baseWorld -> 이동 -> 다시 로컬로
+  useEffect(() => {
+    root.updateMatrixWorld(true);
+
+    // Explode + Highlight(클릭시  색 변경 ) 처리
+    if (!modelCenter.current) {
+      const box = new THREE.Box3().setFromObject(root);
+      modelCenter.current = new THREE.Vector3();
+      box.getCenter(modelCenter.current);
+    }
+
+    const dist = explode * 0.1 * level;
+    const axisDir = new THREE.Vector3();
+    const worldBase = new THREE.Vector3();
+    const worldPos = new THREE.Vector3();
+    const centerDir = new THREE.Vector3();
+
+    for (const mesh of meshes) {
+      const baseLocal = originalPositions.current.get(mesh.uuid);
+      if (!baseLocal) continue;
+
+      const parent = mesh.parent;
+      if (!parent) continue;
+
+      worldBase.copy(baseLocal);
+      parent.localToWorld(worldBase);
+
+      // 모델 중심 기준 벡터 (world)
+      centerDir.copy(worldBase).sub(modelCenter.current!);
+
+      // 모델 중심
+      if (axis === "X") axisDir.set(centerDir.x, 0, 0);
+      else if (axis === "Y") axisDir.set(0, centerDir.y, 0);
+      else if (axis === "Z") axisDir.set(0, 0, centerDir.z);
+      else axisDir.copy(centerDir);
+
+      if (axisDir.lengthSq() === 0) axisDir.set(0, 1, 0);
+      axisDir.normalize();
+
+      worldPos.copy(worldBase).addScaledVector(axisDir, dist);
+
+      parent.worldToLocal(worldPos);
+      mesh.position.copy(worldPos);
+
+      const origColor = originalColors.current.get(mesh.uuid);
+      if (!origColor) continue;
+
+      const targetColor = mesh.name === selectedName ? new THREE.Color(0xff0000) : origColor;
       const apply = (m: THREE.Material) => {
-        const mm = m as any;
-        if (mm?.color?.isColor) mm.color.copy(c);
+        if ("color" in m) (m as any).color.copy(targetColor);
       };
-
       if (Array.isArray(mesh.material)) mesh.material.forEach(apply);
       else apply(mesh.material);
     }
-  }, [resetKey, meshes, originalPositions, originalColors]);
+  }, [explode, selectedName, meshes, root, originalPositions, originalColors, axis, level]);
 
   return (
     <primitive
       object={root}
-      scale={[5, 5, 5]}
       onPointerDown={(e) => {
         e.stopPropagation();
-        const mesh = e.object as THREE.Mesh;
-        const name = mesh.name ?? "";
-        if (isBlocked(name)) return;
-        setSelectedName(mesh.name);
+        let obj = e.object as THREE.Object3D;
+        while (obj.parent && obj.parent instanceof THREE.Mesh) {
+          obj = obj.parent;
+        }
+        const name = obj.name ?? "";
+        setSelectedName(name);
       }}
     />
   );
