@@ -10,11 +10,12 @@ export default function Tab({ selectedTab, setSelectedTab, category }: Props) {
   return (
     <div className="flex justify-center items-center">
       <div className="flex  border rounded-2xl overflow-hidden">
-        {category?.contents.map((cate) => (
+        {category?.contents.map((cate, index) => (
           <button
             key={cate.idx}
+            disabled={index !== 0}
             onClick={() => setSelectedTab(cate.idx)}
-            className={`px-6 py-2 transition-colors duration-300 cursor-pointer rounded-2xl 
+            className={`px-6 py-2 transition-colors duration-300 rounded-2xl 
               ${selectedTab === cate.idx ? "bg-black text-white" : "bg-transparent text-black"}`}
           >
             {cate.name}

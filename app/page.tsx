@@ -58,9 +58,9 @@ export default function Page() {
             <Image
               src="/images/Logo.png"
               alt="SIMVEX"
-              width={230}
-              height={86}
-              className="inline-block w-[230px] h-auto"
+              width={320}
+              height={48}
+              className="inline-block w-[320] h-auto"
             />
           </h1>
           <h2 className="text-2xl mt-2 font-semibold text-black">공학 학습의 새로운 기준</h2>

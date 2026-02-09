@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useRef, useState, useEffect, Dispatch, SetStateAction } from "react";
+import { flushSync } from "react-dom";
 import { randomUUID } from "@/lib/util/uuid";
 import { useSearchParams } from "next/navigation";
 import { sendChatStream } from "@/lib/api/sseAiChat";
@@ -122,13 +123,16 @@ export default function AIAssistantContent({
           onChunk(chunk) {
             setIsShowSkeleton(false);
             console.log("chunk in client - onChunk", chunk);
-            setMessages((prev) => {
-              const next = [...prev];
-              const last = next[next.length - 1];
-              if (last?.type === "RESPONSE") {
-                next[next.length - 1] = { ...last, message: last.message + chunk };
-              }
-              return next;
+            // 각 chunk마다 즉시 DOM에 반영되도록 flushSync 사용
+            flushSync(() => {
+              setMessages((prev) => {
+                const next = [...prev];
+                const last = next[next.length - 1];
+                if (last?.type === "RESPONSE") {
+                  next[next.length - 1] = { ...last, message: last.message + chunk };
+                }
+                return next;
+              });
             });
           },
           onRoomId(serverRoomId) {

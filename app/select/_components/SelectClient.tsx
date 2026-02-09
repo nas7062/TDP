@@ -40,7 +40,7 @@ export default function SelectClient({ category }: Props) {
         <div>
           <Tab selectedTab={selectedTab} setSelectedTab={setSelectedTab} category={category} />
         </div>
-        <div className="grid grid-cols-4 justify-center gap-4 mt-6 max-w-7xl w-full mx-auto">
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 justify-center gap-4 mt-6 max-w-7xl w-full mx-auto">
           {/* {machineList[selectedTab].map((item, index) => (
           <ModelCard model={item} key={index} />
         ))} */}

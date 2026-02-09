@@ -1,5 +1,4 @@
 "use client";
-import Image from "next/image";
 import { useEffect, useState, useMemo, Suspense } from "react";
 import RightPannelSidebar from "./RightPannelSidebar";
 import AIAssistantContent from "./AIAssistantContent";
@@ -10,21 +9,16 @@ import { getMemoList } from "@/lib/api/memo";
 
 const contentList: RightPannelContentType[] = ["AI 어시스턴스", "메모장"];
 
-export default function RightPannel() {
+export default function RightPannelInPdf() {
   const userIdx =
     typeof window !== "undefined" ? JSON.parse(localStorage.getItem("user") ?? "{}")?.idx : "";
 
   const searchParams = useSearchParams();
   const modelIdx = searchParams.get("modelIdx") ? parseInt(searchParams.get("modelIdx")!) : 0;
 
-  const [uiType, setUiType] = useState<RightPannelUIType>("default");
+  const [uiType, setUiType] = useState<RightPannelUIType>("full");
   const [contentType, setContentType] = useState<RightPannelContentType>("AI 어시스턴스");
   const [sideContentType, setSideContentType] = useState<RightPannelSideContentType>("history");
-
-  const onClickExpandBtn = () => {
-    setSideContentType((prev) => (uiType !== "default" ? "history" : prev));
-    setUiType(uiType === "default" ? "expanded" : "default");
-  };
 
   const [chatList, setChatList] = useState<ChatContent[]>([]);
   const [roomId, setRoomId] = useState<string>("");
@@ -66,7 +60,7 @@ export default function RightPannel() {
 
   return (
     <div
-      className={`absolute right-3 top-[84px] p-7 pl-4 bg-white rounded-lg shadow-lg flex transition-all duration-300 ${uiType === "default" ? "h-[176px]" : "h-[812px]"} max-h-[calc(100vh-120px)] ${uiType === "full" ? "w-[529px]" : "w-[392px]"} `}
+      className={`relative p-7 pl-4 bg-white rounded-lg shadow-lg flex  duration-300 h-[680px] ${uiType === "full" ? "w-[529px]" : "w-[392px]"}  `}
     >
       {/* 왼쪽 사이드 영역 */}
       <Suspense fallback={null}>
@@ -84,6 +78,7 @@ export default function RightPannel() {
           setMemoList={setMemoList}
           memoIdx={memoIdx}
           setMemoIdx={setMemoIdx}
+          isPdfPage={true}
         />
       </Suspense>
 
@@ -107,13 +102,6 @@ export default function RightPannel() {
               </li>
             ))}
           </ul>
-          <button
-            role="button"
-            onClick={onClickExpandBtn}
-            className={`${uiType === "default" ? "rotate-180" : "rotate-0"} transition-all duration-300 h-[fit-content]`}
-          >
-            <Image src={"/icons/Up.svg"} alt="새로운 글 작성" width={24} height={24} />
-          </button>
         </div>
         {/* 메인 컨텐츠 영역 */}
 

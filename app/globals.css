@@ -130,6 +130,9 @@ button:not([disabled]) {
   body {
     @apply bg-background text-foreground;
   }
+  img {
+    @apply inline-block;
+  }
 }
 
 body {
