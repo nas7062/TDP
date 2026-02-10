@@ -92,7 +92,9 @@ export type QuizHistoryItem = {
   quizContent: string;
   quizOptions: QuizHistoryOption[];
   selectedOptionIdx: number;
+  selectedOptionContent: string;
   correctOptionIdx: number;
+  correctOptionContent: string;
   explanation: string;
   isCorrect: boolean;
   createdAt: string;

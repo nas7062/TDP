@@ -29,8 +29,8 @@ export function Grade({
       {/* 테이블 바디 */}
       <div className="mt-1 divide-y divide-gray-100 rounded-md border bg-white">
         {rows.map((g) => {
-          const level = getLevelByGrade(g.grade);
-          const chip = CHIP_LEVEL_CONFIG[level];
+          const gradeKey = (g.grade ?? "").trim();
+          const chip = CHIP_LEVEL_CONFIG[gradeKey];
           const active = g.grade === currentGrade;
 
           return (
@@ -46,11 +46,11 @@ export function Grade({
               <div className="flex justify-center w-24">
                 <span
                   className={[
-                    "rounded-full px-2  py-0.5 text-xs font-semibold",
-                    chip.className
+                    "rounded-full px-2 py-0.5 text-xs font-semibold",
+                    chip?.className ?? "bg-gray-100 text-gray-500"
                   ].join(" ")}
                 >
-                  {chip.label}
+                  {chip?.label}
                 </span>
               </div>
             </div>

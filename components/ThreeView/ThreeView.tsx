@@ -28,7 +28,7 @@ interface Props {
   user: IUser | null;
   modelIdx: number;
   model: IModelDetail | null;
-  setIsMenu: Dispatch<SetStateAction<boolean | null>>;
+  setIsMenu: Dispatch<SetStateAction<boolean>>;
 }
 function getModelPath(modelIdx: number) {
   return MODEL_PATH_BY_IDX[modelIdx] ?? "/models/Engine5.glb";
