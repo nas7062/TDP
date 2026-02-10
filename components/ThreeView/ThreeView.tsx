@@ -335,11 +335,12 @@ export default function ThreeView({
       </Canvas>
 
       <div className="fixed bottom-6 left-1/2 -translate-x-1/2 flex gap-1">
-        <ActionButton
+        {/* <ActionButton
           icon="/icons/See.svg"
           label="보기"
           onClick={() => setIsMoveCamera(!isMoveCamera)}
-        />
+        /> */}
+        <ViewButtons moveCameraToView={moveCameraToView} setIsMoveCamera={setIsMoveCamera} />
         <ExplodeModal
           explode={explode}
           setExplode={(v) => {
@@ -359,9 +360,6 @@ export default function ThreeView({
         />
         <ActionButton icon="/icons/Reset.svg" label="초기화" onClick={onReset} />
       </div>
-      {isMoveCamera && (
-        <ViewButtons moveCameraToView={moveCameraToView} setIsMoveCamera={setIsMoveCamera} />
-      )}
     </div>
   );
 }
