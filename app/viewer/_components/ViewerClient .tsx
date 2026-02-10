@@ -76,6 +76,8 @@ export default function ViewerClient() {
     setSelectedPart(part);
     setIsDetail(Boolean(part));
   }, [selectedName, model?.items]);
+
+  console.log(model);
   return (
     <div className="flex w-screen h-[calc(100vh-64px)] relative ">
       <div className="absolute top-20 left-4 w-96 z-1">

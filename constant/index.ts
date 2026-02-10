@@ -100,11 +100,18 @@ export const AXIS_OPTIONS: { label: string; value: AxisType }[] = [
   { label: "Z축", value: "Z" }
 ];
 
-export function parseSnapshot(meta: string): ViewerState | null {
+export function parseSnapshot(meta: unknown): ViewerState | null {
   try {
-    const s = JSON.parse(meta);
-    if (!s?.camera?.position || !s?.controls?.target) return null;
-    return s as ViewerState;
+    if (!meta) return null;
+    if (typeof meta === "object") return meta as ViewerState;
+    if (typeof meta !== "string") return null;
+
+    let s = meta.trim();
+    if (s.startsWith('"') && s.endsWith('"')) {
+      s = JSON.parse(s);
+    }
+
+    return JSON.parse(s) as ViewerState;
   } catch {
     return null;
   }
