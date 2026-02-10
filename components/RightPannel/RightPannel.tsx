@@ -67,7 +67,7 @@ export default function RightPannel() {
 
   return (
     <div
-      className={`absolute right-3 top-[84px] p-7 pl-4 bg-white rounded-lg shadow-lg flex transition-all duration-300 ${uiType === "default" ? "h-[176px]" : "h-[812px]"} max-h-[calc(100vh-120px)] ${uiType === "full" ? "w-[529px]" : "w-[392px]"} `}
+      className={`absolute right-4 top-[84px] p-7 pl-4 bg-white rounded-lg shadow-lg flex transition-all duration-300 ${uiType === "default" ? "h-[176px]" : "h-[812px]"} max-h-[calc(100vh-120px)] ${uiType === "full" ? "w-[529px]" : "w-[392px]"} `}
     >
       {/* 왼쪽 사이드 영역 */}
       <Suspense fallback={null}>

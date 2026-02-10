@@ -49,7 +49,6 @@ export default function PdfClient() {
   const [currentPageIndex, setCurrentPageIndex] = useState(0);
   const [pdfName, setPdfName] = useState<string>("");
   const editorRef = useRef<HTMLDivElement>(null);
-  const [toastVisible, setToastVisible] = useState(false);
   useEffect(() => {
     const userData =
       typeof window !== "undefined" ? JSON.parse(localStorage.getItem("user") ?? "{}") : null;
@@ -91,7 +90,6 @@ export default function PdfClient() {
 
   // TODO:a4 수정인데 (안에 변경되어야함)
   const handleContentChange = (content: string) => {
-    setToastVisible(true);
     setPages((prev) => {
       const next = [...prev];
       next[currentPageIndex] = { ...next[currentPageIndex], content };
@@ -305,7 +303,6 @@ export default function PdfClient() {
         {/* 오른쪽 ai 및 메모장 내용 */}
         <RightPannelInPdf />
       </div>
-      {toastVisible && <Toast duration={1500} onClose={() => setToastVisible(false)} />}
     </div>
   );
 }

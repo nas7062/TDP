@@ -14,7 +14,7 @@ export function proxy(request: NextRequest) {
   }
 
   // /viewer 접근 시 modelIdx 파라미터 없으면 /select로 리다이렉트 (0이어도 있으면 통과)
-  if (pathname === "/viewer") {
+  if (pathname === "/viewer" || pathname === "/pdf") {
     const modelIdx = searchParams.get("modelIdx");
     if (modelIdx === null || modelIdx === "") {
       return NextResponse.redirect(new URL("/select", request.url));

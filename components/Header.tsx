@@ -16,12 +16,27 @@ export default function Header() {
   const pathname = usePathname();
 
   useEffect(() => {
-    const user = JSON.parse(localStorage.getItem("user") ?? "{}");
-    setUser(user);
-  }, []);
+    if (typeof window === "undefined") return;
+    try {
+      const raw = localStorage.getItem("user");
+      if (!raw) {
+        setUser(null);
+        return;
+      }
+      const parsed = JSON.parse(raw) as IUser | null;
+      if (!parsed || !parsed.userId || !parsed.idx) {
+        setUser(null);
+        return;
+      }
+      setUser(parsed);
+    } catch {
+      setUser(null);
+    }
+  }, [pathname]);
 
+  // 사용자 등급 정보 불러오기
   useEffect(() => {
-    if (!user) return;
+    if (!user?.idx) return;
     fetchUserQuizMe(user.idx).then((res) => {
       setGrade(res.currentGrade as ChipLevel);
     });
