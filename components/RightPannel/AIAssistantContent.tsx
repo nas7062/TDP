@@ -44,7 +44,10 @@ export default function AIAssistantContent({
   const [isShowSkeleton, setIsShowSkeleton] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
-  const streamingRef = useRef("");
+  const bufferRef = useRef("");
+  const rafRef = useRef<number | null>(null);
+  const streamingMessageRef = useRef("");
+  const isStreamingRef = useRef(false);
 
   // textarea 높이: 1줄 기본, 최대 3줄까지 자동 확장
   const adjustHeight = () => {
@@ -76,9 +79,40 @@ export default function AIAssistantContent({
     }
   }, [messages, uiType]);
 
-  // 메세지 목록에서 selectedChat 가져오기
+  // 스트리밍 버퍼를 메시지에 반영하는 flush 함수
+  const flush = () => {
+    if (bufferRef.current) {
+      streamingMessageRef.current += bufferRef.current;
+      setMessages((prev) => {
+        const next = [...prev];
+        const last = next[next.length - 1];
+        if (last?.type === "RESPONSE") {
+          next[next.length - 1] = {
+            ...last,
+            message: streamingMessageRef.current
+          };
+        }
+        return next;
+      });
+      bufferRef.current = "";
+    }
+    rafRef.current = null;
+  };
+
+  // 컴포넌트 언마운트 시 RAF 정리
   useEffect(() => {
-    setMessages(selectedChat?.messages || []);
+    return () => {
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current);
+      }
+    };
+  }, []);
+
+  // 메세지 목록에서 selectedChat 가져오기 (스트리밍 중이 아닐 때만)
+  useEffect(() => {
+    if (!isStreamingRef.current) {
+      setMessages(selectedChat?.messages || []);
+    }
   }, [selectedChat]);
 
   // 메세지 보내기 (RoomId 맨처음에는 기본적으로 빈값인데, submit 시에 생성)
@@ -113,6 +147,15 @@ export default function AIAssistantContent({
       // 스트리밍용 빈 응답 메시지 먼저 추가
       setMessages((prev) => [...prev, { type: "RESPONSE", message: "" }]);
 
+      // 스트리밍 버퍼 및 RAF 초기화
+      bufferRef.current = "";
+      streamingMessageRef.current = "";
+      isStreamingRef.current = true;
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current);
+        rafRef.current = null;
+      }
+
       const roomIdRef = { current: newRoomId };
       const fullMessage = await sendChatStream(
         {
@@ -124,22 +167,12 @@ export default function AIAssistantContent({
         {
           onChunk(chunk) {
             setIsShowSkeleton(false);
-            console.log("chunk in client - onChunk", chunk);
-            streamingRef.current += chunk;
+            // console.log("chunk in client - onChunk", chunk);
+            bufferRef.current += chunk;
 
-            requestAnimationFrame(() => {
-              setMessages((prev) => {
-                const next = [...prev];
-                const last = next[next.length - 1];
-                if (last?.type === "RESPONSE") {
-                  next[next.length - 1] = {
-                    ...last,
-                    message: streamingRef.current
-                  };
-                }
-                return next;
-              });
-            });
+            if (rafRef.current === null) {
+              rafRef.current = requestAnimationFrame(flush);
+            }
           },
           onRoomId(serverRoomId) {
             console.log("serverRoomId in client - onRoomId", serverRoomId);
@@ -173,6 +206,17 @@ export default function AIAssistantContent({
           }
         }
       );
+
+      // 남은 버퍼가 있다면 flush
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current);
+        rafRef.current = null;
+      }
+      if (bufferRef.current) {
+        flush();
+      }
+
+      isStreamingRef.current = false;
 
       const assistantMessage: ChatMessage = {
         type: "RESPONSE",
@@ -212,6 +256,14 @@ export default function AIAssistantContent({
       }
     } catch {
       // 에러 시 사용자 메시지 유지 (필요하면 토스트 등 처리)
+      // 에러 발생 시에도 버퍼 정리
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current);
+        rafRef.current = null;
+      }
+      bufferRef.current = "";
+      streamingMessageRef.current = "";
+      isStreamingRef.current = false;
     } finally {
       setIsFetching(false);
       setIsShowSkeleton(false);
