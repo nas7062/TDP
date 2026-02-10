@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { Spinner } from "../ui/spinner";
 import { getQuizList, submitQuiz } from "@/lib/api/quiz";
 import { useSearchParams } from "next/navigation";
+import { QuizAnswer, QuizContent, QuizSubmitResponse } from "@/types/api";
 
 const LOADING_DURATION_MS = 700;
 

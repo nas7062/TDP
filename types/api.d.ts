@@ -119,7 +119,7 @@ type UserQuizMeResponse = {
   totalCorrect: number;
   totalWrong: number;
   modelStats: ModelStat[];
-=======
+};
 // quiz api
 type QuizListRequest = {
   modelIdx: number;

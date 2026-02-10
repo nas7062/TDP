@@ -5,6 +5,7 @@ import QuizModalStartContent from "./QuizModalStartContent";
 import QuizModalMainContent from "./QuizModalMainContent";
 import { useState } from "react";
 import QuizModalResultContent from "./QuizModalResultContent";
+import { QuizSubmitResponse } from "@/types/api";
 
 type QuizModalProps = {
   view: QuizModalView;

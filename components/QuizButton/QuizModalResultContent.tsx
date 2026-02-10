@@ -4,6 +4,7 @@ import { DialogClose, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { XIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { QuizSubmitResponse } from "@/types/api";
 
 export default function QuizModalResultContent({
   quizResult,

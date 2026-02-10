@@ -1,5 +1,11 @@
-
-import { QuizHistoryResponse, UserQuizMeResponse } from "@/types/api";
+import {
+  QuizHistoryResponse,
+  QuizListRequest,
+  QuizListResponse,
+  QuizSubmitRequest,
+  QuizSubmitResponse,
+  UserQuizMeResponse
+} from "@/types/api";
 
 export async function fetchUserQuizMe(userIdx: number) {
   const res = await fetch(`/proxy/user/${userIdx}/me`, {
@@ -43,6 +49,7 @@ export async function fetchModelQuizHistory(params: {
   const msg =
     (body as any)?.message || (body as any)?.error || `퀴즈 이력 조회 실패 (${res.status})`;
   throw new Error(msg);
+}
 export async function getQuizList({
   count = 3,
   modelIdx

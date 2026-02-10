@@ -6,6 +6,7 @@ import MemoContent from "./MemoContent";
 import { getChatList } from "@/lib/api/aiAssistant";
 import { useSearchParams } from "next/navigation";
 import { getMemoList } from "@/lib/api/memo";
+import { ChatContent } from "@/types/api";
 
 const contentList: RightPannelContentType[] = ["AI 어시스턴스", "메모장"];
 
