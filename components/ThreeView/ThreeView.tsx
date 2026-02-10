@@ -325,6 +325,7 @@ export default function ThreeView({
             axis={axis}
             resetKey={resetKey}
             onReady={() => {
+              console.log("[Model] onReady fired");
               setModelReady(true);
               setReadyVersion((v) => v + 1);
             }}
