@@ -120,6 +120,7 @@ export default function ViewerClient() {
           user={user}
           modelIdx={modelIdx}
           model={model}
+          setIsMenu={setIsMenu}
         />
       </div>
       <Suspense fallback={null}>

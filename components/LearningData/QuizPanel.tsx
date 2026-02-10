@@ -13,7 +13,7 @@ type Props = {
   modelNameMap?: Record<number, string>;
 };
 
-export default function QuizHistoryPanel({ userIdx, modelIdxList, modelNameMap }: Props) {
+export default function QuizHistoryPanel({ userIdx, modelIdxList }: Props) {
   const models = useMemo(() => {
     const uniq = Array.from(new Set(modelIdxList))
       .filter((x) => Number.isFinite(x) && x > 0)

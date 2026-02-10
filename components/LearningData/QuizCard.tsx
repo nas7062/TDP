@@ -1,19 +1,43 @@
-import { QuizHistoryItem } from "@/types/api";
+import { QuizHistoryItem, QuizHistoryOption } from "@/types/api";
+import { formatKST } from "./FormatKST";
+
+function normalizeOptions(item: QuizHistoryItem): QuizHistoryOption[] {
+  const opts: any = (item as any).quizOptions ?? [];
+
+  if (Array.isArray(opts) && (opts.length === 0 || typeof opts[0] === "string")) {
+    return (opts as string[]).map((text, idx) => ({
+      optionIdx: idx,
+      optionContent: text
+    }));
+  }
+  if (Array.isArray(opts)) {
+    return (opts as any[]).map((o) => ({
+      optionIdx: Number(o.optionIdx),
+      optionContent: String(o.optionContent ?? "")
+    }));
+  }
+
+  return [];
+}
 
 export default function QuizCard({ item, index }: { item: QuizHistoryItem; index: number }) {
-  const selected = item.quizOptions.find((o) => o.optionIdx === item.selectedOptionIdx);
-  const correct = item.quizOptions.find((o) => o.optionIdx === item.correctOptionIdx);
+  const options = normalizeOptions(item);
+  const selected = options.find((o) => o.optionIdx === (item as any).selectedOptionIdx);
+  const correct = options.find((o) => o.optionIdx === (item as any).correctOptionIdx);
+
+  const selectedText = selected?.optionContent ?? (item as any).selectedOptionContent ?? "-";
+  const correctText = correct?.optionContent ?? (item as any).correctOptionContent ?? "-";
 
   return (
     <div className="rounded-xl bg-white p-6 shadow-sm">
       <p className="text-sm font-semibold text-gray-900">Q{index}</p>
 
-      <p className="mt-3 text-base font-medium text-gray-900">{item.quizContent}</p>
+      <p className="mt-3 text-base font-medium text-gray-900">{(item as any).quizContent}</p>
 
       <div className="mt-3 space-y-2">
-        {item.quizOptions.map((o) => {
-          const isSelected = o.optionIdx === item.selectedOptionIdx;
-          const isCorrect = o.optionIdx === item.correctOptionIdx;
+        {options.map((o) => {
+          const isSelected = o.optionIdx === (item as any).selectedOptionIdx;
+          const isCorrect = o.optionIdx === (item as any).correctOptionIdx;
 
           return (
             <div
@@ -34,21 +58,21 @@ export default function QuizCard({ item, index }: { item: QuizHistoryItem; index
         <span
           className={[
             "rounded-full px-3 py-1 text-xs font-semibold",
-            item.isCorrect ? "bg-blue-100 text-blue-700" : "bg-red-100 text-red-700"
+            (item as any).isCorrect ? "bg-blue-100 text-blue-700" : "bg-red-100 text-red-700"
           ].join(" ")}
         >
-          {item.isCorrect ? "정답" : "오답"}
+          {(item as any).isCorrect ? "정답" : "오답"}
         </span>
 
-        <span className="text-xs text-gray-500">선택: {selected?.optionContent ?? "-"}</span>
-        <span className="text-xs text-gray-500">정답: {correct?.optionContent ?? "-"}</span>
-        <span className="text-xs text-gray-400 ml-auto">{item.createdAt}</span>
+        <span className="text-xs text-gray-500">선택: {selectedText}</span>
+        <span className="text-xs text-gray-500">정답: {correctText}</span>
+        <span className="text-xs text-gray-400 ml-auto">{formatKST((item as any).createdAt)}</span>
       </div>
 
-      {item.explanation && (
+      {(item as any).explanation && (
         <div className="mt-3 text-sm text-gray-600">
           <span className="font-semibold text-gray-700">해설</span>
-          <p className="mt-1">{item.explanation}</p>
+          <p className="mt-1">{(item as any).explanation}</p>
         </div>
       )}
     </div>

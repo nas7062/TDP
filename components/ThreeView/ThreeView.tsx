@@ -29,12 +29,20 @@ interface Props {
   user: IUser | null;
   modelIdx: number;
   model: IModelDetail | null;
+  setIsMenu: Dispatch<SetStateAction<boolean>>;
 }
 function getModelPath(modelIdx: number) {
   return MODEL_PATH_BY_IDX[modelIdx] ?? "/models/Engine5.glb";
 }
 
-export default function ThreeView({ setSelectedName, selectedName, user, modelIdx, model }: Props) {
+export default function ThreeView({
+  setSelectedName,
+  selectedName,
+  user,
+  modelIdx,
+  model,
+  setIsMenu
+}: Props) {
   const modelPath = useMemo(() => getModelPath(modelIdx), [modelIdx]);
   const [isMoveCamera, setIsMoveCamera] = useState(false);
   // 모델 분해 상태
@@ -307,6 +315,7 @@ export default function ThreeView({ setSelectedName, selectedName, user, modelId
             selectedName={selectedName}
             setSelectedName={(name) => {
               setSelectedName(name);
+              setIsMenu(false);
               requestAnimationFrame(() => postSnapshot());
             }}
             originalColors={originalColors}
