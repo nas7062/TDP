@@ -20,6 +20,7 @@ import { ExplodeModal } from "../ExplodeModal";
 import { useRouter } from "next/navigation";
 import { MODEL_PATH_BY_IDX, parseSnapshot } from "@/constant";
 import { CameraApplier } from "./CameraApplier";
+import { SpatialGrid } from "./SpatialGrid";
 import ViewButtons from "../ViewButtons";
 
 interface Props {
@@ -290,6 +291,7 @@ export default function ThreeView({ setSelectedName, selectedName, user, modelId
         }}
         onPointerMissed={() => setSelectedName(null)}
       >
+        <SpatialGrid />
         <ambientLight intensity={0.5} />
         <directionalLight position={[5, 6, 5]} intensity={1.2} />
         <OrbitControls
