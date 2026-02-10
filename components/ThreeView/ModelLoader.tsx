@@ -46,7 +46,7 @@ export function Model({
     });
     return list;
   }, [root]);
-  console.log(meshes);
+
   // 초기화가 한 번만 수행되도록 제어 Ref
   const inited = useRef(false);
 

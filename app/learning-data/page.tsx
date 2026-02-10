@@ -64,7 +64,6 @@ export default function LearningDataPage() {
     );
   }
 
-  console.log(data);
   return (
     <div className="bg-[url('/images/BlueBackground.png')] bg-[length:100%_50%] bg-no-repeat bg-top mt-[-64px] w-screen min-h-screen">
       <div className="flex flex-col gap-3">

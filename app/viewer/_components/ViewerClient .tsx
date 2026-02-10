@@ -63,16 +63,16 @@ export default function ViewerClient() {
     };
     fetchModel();
   }, [modelIdx, user?.idx]);
-  console.log(model);
+
   useEffect(() => {
     if (!selectedName) {
       setSelectedPart(null);
       setIsDetail(false);
       return;
     }
-    console.log(selectedName);
+
     const part = findBestPart<IModelParts>(model?.items, selectedName);
-    console.log(part);
+
     setSelectedPart(part);
     setIsDetail(Boolean(part));
   }, [selectedName, model?.items]);

@@ -13,7 +13,13 @@ const pretendard = localFont({
 export const metadata: Metadata = {
   title: "SIMVEX",
   description:
-    "교과서 그림만으로는 이해하기 어려운 복잡한 기계 구조, 이제 3D로 돌려보고 분해하며 배우세요."
+    "교과서 그림만으로는 이해하기 어려운 복잡한 기계 구조, 이제 3D로 돌려보고 분해하며 배우세요.",
+  openGraph: {
+    title: "SIMVEX",
+    description: "3D로 배우는 기계 구조",
+    images: ["/images/logo.png"],
+    type: "website"
+  }
 };
 
 export default function RootLayout({
