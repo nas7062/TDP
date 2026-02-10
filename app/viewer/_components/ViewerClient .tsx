@@ -80,7 +80,7 @@ export default function ViewerClient() {
   console.log(model);
   return (
     <div className="flex w-screen h-[calc(100vh-64px)] relative ">
-      <div className="absolute top-20 left-4 w-96 z-1">
+      <div className="absolute top-[20px] left-4 w-96 z-1">
         <div className="w-96 h-20 shadow-lg flex justify-between items-center px-7 bg-white rounded-lg">
           <p className="font-medium">{model?.name}</p>
           <Image
