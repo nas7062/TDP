@@ -7,6 +7,7 @@ import { randomUUID } from "@/lib/util/uuid";
 import { useSearchParams } from "next/navigation";
 import { sendChatStream } from "@/lib/api/sseAiChat";
 import { TextSkeleton } from "@/components/ui/skeleton";
+import { ChatContent, ChatMessage } from "@/types/api";
 
 type Props = {
   uiType: RightPannelUIType;

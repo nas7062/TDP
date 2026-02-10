@@ -1,3 +1,12 @@
+import {
+  ChatDeleteRequest,
+  ChatListRequest,
+  ChatListResponse,
+  ChatRequest,
+  ChatResponse,
+  ChatSearchRequest
+} from "@/types/api";
+
 export async function getChatList({
   userIdx,
   modelIdx

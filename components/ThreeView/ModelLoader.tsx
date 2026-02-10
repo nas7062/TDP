@@ -46,6 +46,7 @@ export function Model({
     });
     return list;
   }, [root]);
+  console.log(meshes);
   // 초기화가 한 번만 수행되도록 제어 Ref
   const inited = useRef(false);
 
@@ -84,11 +85,10 @@ export function Model({
       originalPositions.current.set(mesh.uuid, mesh.position.clone());
     }
 
-    inited.current = true; // ✅ 마지막에 true
+    inited.current = true; //
 
     const n = originalPositions.current.size;
     if (n > 0) {
-      console.log("ORIGINAL CAPTURED", n);
       onReady?.();
     }
   }, [root, meshes, modelPath, onReady, originalPositions, originalColors]);

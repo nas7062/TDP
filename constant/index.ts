@@ -100,10 +100,11 @@ export const AXIS_OPTIONS: { label: string; value: AxisType }[] = [
   { label: "Z축", value: "Z" }
 ];
 
-
 export function parseSnapshot(meta: string): ViewerState | null {
   try {
-    return JSON.parse(meta) as ViewerState;
+    const s = JSON.parse(meta);
+    if (!s?.camera?.position || !s?.controls?.target) return null;
+    return s as ViewerState;
   } catch {
     return null;
   }
@@ -149,3 +150,18 @@ export const MENU_BOTTOM_ITEMS = [
   { label: "로그아웃", icon: "/icons/Logout.svg", isLogout: true }
 ] as const;
 
+export const FALLBACK_GRADES: GradeRule[] = [
+  { grade: "마스터 엔지니어", minSolved: 100 },
+  { grade: "수석 설계자", minSolved: 71, maxSolved: 99 },
+  { grade: "전문 기술자", minSolved: 51, maxSolved: 70 },
+  { grade: "메커닉", minSolved: 31, maxSolved: 50 },
+  { grade: "테크니션", minSolved: 16, maxSolved: 30 },
+  { grade: "입문 지망생", minSolved: 0, maxSolved: 15 }
+];
+
+export const MODEL_PATH_BY_IDX: Record<number, string> = {
+  7: "/models/Drone4.glb",
+  8: "/models/RobotArm3.glb",
+  9: "/models/Engine5.glb",
+  10: "/models/RobotGripper6.glb"
+};

@@ -7,6 +7,7 @@ import {
   Suspense,
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState
 } from "react";
@@ -17,7 +18,7 @@ import { Model } from "./ModelLoader";
 import ActionButton from "../ActionButton";
 import { ExplodeModal } from "../ExplodeModal";
 import { useRouter } from "next/navigation";
-import { parseSnapshot } from "@/constant";
+import { MODEL_PATH_BY_IDX, parseSnapshot } from "@/constant";
 import { CameraApplier } from "./CameraApplier";
 import ViewButtons from "../ViewButtons";
 
@@ -28,9 +29,12 @@ interface Props {
   modelIdx: number;
   model: IModelDetail | null;
 }
+function getModelPath(modelIdx: number) {
+  return MODEL_PATH_BY_IDX[modelIdx] ?? "/models/Engine5.glb";
+}
 
 export default function ThreeView({ setSelectedName, selectedName, user, modelIdx, model }: Props) {
-  const [modelPath] = useState("/models/Drone3.glb");
+  const modelPath = useMemo(() => getModelPath(modelIdx), [modelIdx]);
   const [isMoveCamera, setIsMoveCamera] = useState(false);
   // 모델 분해 상태
   const [explode, setExplode] = useState(0);
@@ -276,7 +280,7 @@ export default function ThreeView({ setSelectedName, selectedName, user, modelId
   }, [readyVersion, modelReady, model?.meta, setSelectedName]);
 
   return (
-    <div className="w-full h-full relative bg-gray-100">
+    <div className="w-full h-full relative bg-[#FBFBFB]">
       <Canvas
         camera={{ position: [0, 6, 12], fov: 35 }}
         onCreated={({ camera, gl }) => {

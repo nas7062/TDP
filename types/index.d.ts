@@ -26,6 +26,7 @@ interface IModelParts {
   idx: number;
   name: string;
   image: string;
+  mesh?: string;
   statusInfo?: string;
   description: string;
 }
@@ -71,4 +72,16 @@ type ViewerState = {
   updatedAt: string;
 };
 
+
+type GradeRule = {
+  grade: string;
+  minSolved: number;
+  maxSolved?: number | null;
+};
+
+type MemoContent = {
+  idx: number;
+  memo: string;
+};
 type QuizModalView = "start" | "main" | "result";
+

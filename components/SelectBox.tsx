@@ -17,7 +17,7 @@ export default function SelectBox({
   model
 }: Props) {
   return (
-    <div className="w-96 bg-[#4D4D4D] rounded-xl h-88 p-6">
+    <div className="w-96 bg-[#4D4D4D] rounded-xl  max-h-screen p-6">
       <PartList
         partList={partList}
         setIsMenu={setIsMenu}
