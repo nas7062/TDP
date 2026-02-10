@@ -44,6 +44,7 @@ export default function AIAssistantContent({
   const [isShowSkeleton, setIsShowSkeleton] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const streamingRef = useRef("");
 
   // textarea 높이: 1줄 기본, 최대 3줄까지 자동 확장
   const adjustHeight = () => {
@@ -124,13 +125,17 @@ export default function AIAssistantContent({
           onChunk(chunk) {
             setIsShowSkeleton(false);
             console.log("chunk in client - onChunk", chunk);
-            // 각 chunk마다 즉시 DOM에 반영되도록 flushSync 사용
-            flushSync(() => {
+            streamingRef.current += chunk;
+
+            requestAnimationFrame(() => {
               setMessages((prev) => {
                 const next = [...prev];
                 const last = next[next.length - 1];
                 if (last?.type === "RESPONSE") {
-                  next[next.length - 1] = { ...last, message: last.message + chunk };
+                  next[next.length - 1] = {
+                    ...last,
+                    message: streamingRef.current
+                  };
                 }
                 return next;
               });

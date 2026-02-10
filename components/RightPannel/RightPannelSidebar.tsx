@@ -191,7 +191,7 @@ export default function RightPannelSidebar({
                 {!isPdfPage && (
                   <button
                     role="button"
-                    className={`absolute right-0 top-0  -translate-x-1/2  hidden group-hover:block`}
+                    className={`absolute right-0 top-0.5  -translate-x-1/2  hidden group-hover:block`}
                     onClick={() => onClickChatDeleteBtn(item.roomId)}
                   >
                     <Image src={"/icons/Trash.svg"} alt="삭제" width={20} height={20} />
