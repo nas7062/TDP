@@ -5,6 +5,7 @@ import { QuizHistoryResponse } from "@/types/api";
 import { useEffect, useMemo, useState } from "react";
 import QuizCard from "./QuizCard";
 import Pagination from "./Pagenation";
+import { MODEL_NAME_BY_IDX } from "@/constant";
 
 type Props = {
   userIdx: number;
@@ -65,7 +66,7 @@ export default function QuizHistoryPanel({ userIdx, modelIdxList, modelNameMap }
         >
           {models.map((m) => (
             <option key={m} value={m}>
-              {modelNameMap?.[m] ?? `모델 ${m}`}
+              {MODEL_NAME_BY_IDX[m]}
             </option>
           ))}
         </select>
@@ -99,7 +100,12 @@ export default function QuizHistoryPanel({ userIdx, modelIdxList, modelNameMap }
           totalCount={resp.totalCount}
           size={size}
           onChange={setPage}
-          modelNameMap={{ 1: "로봇팔", 2: "드론", 3: "V4_Engine", 4: "Robot Gripper" }}
+          modelNameMap={{
+            7: "드론(Drone)",
+            8: "산업용 로봇 암",
+            9: "4기통 엔진 구동계",
+            10: "기어 구동 로봇 그리퍼"
+          }}
         />
       )}
     </div>

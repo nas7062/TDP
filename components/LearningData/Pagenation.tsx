@@ -9,7 +9,7 @@ export default function Pagination({
   totalCount: number;
   size: number;
   onChange: (p: number) => void;
-  modelNameMap: { 1: string; 2: string; 3: string; 4: string };
+  modelNameMap: { 7: string; 8: string; 9: string; 10: string };
 }) {
   const totalPages = Math.max(1, Math.ceil(totalCount / size));
   const current = page + 1;

@@ -14,7 +14,7 @@ export default function ModelCircle({
   const deg = Math.round(correctRatio * 360);
 
   return (
-    <div className="flex flex-col items-center gap-2">
+    <div className="flex flex-col items-center gap-2 p-2">
       {/* 도넛 */}
       <div
         className="relative h-14 w-14 rounded-full"
@@ -24,9 +24,9 @@ export default function ModelCircle({
       >
         <div className="absolute inset-1.75 rounded-full bg-gray-100" />
         <div className="absolute inset-0 flex items-center justify-center text-[10px] font-semibold">
-          <span className="text-blue-500">정답</span>
-          <span className="mx-1 text-gray-300">/</span>
           <span className="text-red-400">오답</span>
+          <span className="mx-1 text-gray-300">/</span>
+          <span className="text-blue-500">정답</span>
         </div>
       </div>
 

@@ -4,6 +4,7 @@ import AnswerCircle from "@/components/LearningData/AnswerCircle";
 import GradeCard from "@/components/LearningData/GradeCard";
 import ModelCircle from "@/components/LearningData/ModelCircle";
 import QuizHistoryPanel from "@/components/LearningData/QuizPanel";
+import { MODEL_NAME_BY_IDX } from "@/constant";
 import { fetchUserQuizMe } from "@/lib/api/quiz";
 import { UserQuizMeResponse } from "@/types/api";
 import { useEffect, useState } from "react";
@@ -119,7 +120,7 @@ export default function LearningDataPage() {
                     data.modelStats.map((m) => (
                       <ModelCircle
                         key={m.modelIdx}
-                        label={`Model ${m.modelIdx}`}
+                        label={MODEL_NAME_BY_IDX[m.modelIdx]}
                         correct={m.correct}
                         wrong={m.wrong}
                       />

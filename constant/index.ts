@@ -165,3 +165,10 @@ export const MODEL_PATH_BY_IDX: Record<number, string> = {
   9: "/models/Engine5.glb",
   10: "/models/RobotGripper6.glb"
 };
+
+export const MODEL_NAME_BY_IDX: Record<number, string> = {
+  7: "드론(Drone)",
+  8: "산업용 로봇 암",
+  9: "4기통 엔진 구동계",
+  10: "기어 구동 로봇 그리퍼"
+};
