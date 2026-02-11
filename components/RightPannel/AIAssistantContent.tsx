@@ -2,12 +2,11 @@
 
 import Image from "next/image";
 import { useRef, useState, useEffect, Dispatch, SetStateAction } from "react";
-import { flushSync } from "react-dom";
 import { randomUUID } from "@/lib/util/uuid";
 import { useSearchParams } from "next/navigation";
 import { sendChatStream } from "@/lib/api/sseAiChat";
-import { TextSkeleton } from "@/components/ui/skeleton";
 import { ChatContent, ChatMessage } from "@/types/api";
+import { Spinner } from "../ui/spinner";
 
 type Props = {
   uiType: RightPannelUIType;
@@ -42,6 +41,7 @@ export default function AIAssistantContent({
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isFetching, setIsFetching] = useState(false);
   const [isShowSkeleton, setIsShowSkeleton] = useState(false);
+  const [dotCount, setDotCount] = useState(0);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const bufferRef = useRef("");
@@ -114,6 +114,18 @@ export default function AIAssistantContent({
       setMessages(selectedChat?.messages || []);
     }
   }, [selectedChat]);
+
+  // 점 애니메이션 효과
+  useEffect(() => {
+    if (!isShowSkeleton) {
+      setDotCount(0);
+      return;
+    }
+    const interval = setInterval(() => {
+      setDotCount((prev) => (prev >= 3 ? 0 : prev + 1));
+    }, 500);
+    return () => clearInterval(interval);
+  }, [isShowSkeleton]);
 
   // 메세지 보내기 (RoomId 맨처음에는 기본적으로 빈값인데, submit 시에 생성)
   const submitMessage = async () => {
@@ -311,9 +323,12 @@ export default function AIAssistantContent({
                 </div>
               ))}
               {isShowSkeleton && (
-                <div className="flex justify-start">
-                  <div className="rounded-2xl px-4 py-2.5 w-[90%] bg-white text-gray-800">
-                    <TextSkeleton lines={3} className="min-w-[120px]" />
+                <div className="flex justify-start -mt-2">
+                  <div className="rounded-2xl px-4 w-[90%] pb-2.5  bg-white text-gray-800 flex items-center gap-2">
+                    <Spinner size="sm" className="-mt-1" />
+                    <span className="text-[15px] font-medium">
+                      생각 중 입니다{Array(dotCount).fill(".").join("")}
+                    </span>
                   </div>
                 </div>
               )}

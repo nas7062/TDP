@@ -10,7 +10,6 @@ import Image from "next/image";
 import { XIcon } from "lucide-react";
 import RightPannelInPdf from "@/components/RightPannel/RightPannelInPdf";
 import { BottomToolbar, TopToolbar } from "@/components/Toolbar";
-import { Toast } from "@/components/Toast";
 
 // A4 크기 (mm → px 변환, 96 DPI 기준)
 const A4_WIDTH_MM = 210;
@@ -200,7 +199,7 @@ export default function PdfClient() {
   const currentPage = pages[currentPageIndex];
 
   return (
-    <div className="bg-[#FBFBFB] h-[calc(100vh-64px)] w-screen ">
+    <div className="bg-[#FBFBFB] h-[calc(100vh-64px)] w-screen overflow-y-auto ">
       <div className="flex gap-2">
         {/* PDF 이름 입력 */}
         <div className="relative">
@@ -233,7 +232,7 @@ export default function PdfClient() {
       </div>
 
       {/* 컨텐츠 영역 */}
-      <div className="mt-3 grid grid-cols-[100px_3fr_auto] gap-4 ">
+      <div className="mt-3 grid grid-cols-[80px_3fr_auto] gap-4 ">
         {/* 페이지 목록 */}
         <div className="w-[fit-content]  pl-5 h-full overflow-y-auto">
           {pages.map((page, index) => (
